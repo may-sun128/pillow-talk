@@ -1,0 +1,28 @@
+pyautogui > sending keys
+pynput    > reading keys
+
+modes
+    desktop 
+        p = up 
+        m = down
+    firefox 
+        p = zoom in (ctrl +)
+        m = zoom out (ctrl -)
+
+TODO
+    change keys from letters to more obscure characters so keyboard input is less likely to be registered as controller input 
+
+    add system-wide zoom function 
+
+    create some kind of graphical alert of which mode the controller is currently in 
+
+    consollidate the .txt IO files into JSON and add read/write functionality w/ JSON
+
+    fix 'object key has no attribute char error' in on_press event 
+
+    add a more readable launcher than rofi 
+
+    write docs
+    
+    remove the qjoypad layer altogether and read controller binary directly 
+
