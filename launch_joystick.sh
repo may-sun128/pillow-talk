@@ -3,5 +3,11 @@
 # This script launches qjoypad and the script to handle qjoypads output
 
 # remove the `--notray` flag for program to run in background 
-qjoypad --notray &
-./keys.py
+#qjoypad --notray &
+
+# Kill previous instance of qjoypad is it's already running
+pkill -f qjoypad
+sleep 3
+echo launching...
+qjoypad & 
+./key-translator.py
