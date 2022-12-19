@@ -55,7 +55,6 @@ def start_virtual_keyboard():
 
     pid = execute_bash(start_virtual_keyboard_command)
 
-
 # This function calls the start_virtual_keyboard function, moves it to a seperate thread,
 # kills the thread, and finally kills the process of the virtual keyboard 
 def handle_virtual_keyboard():
@@ -75,13 +74,16 @@ def handle_virtual_keyboard():
     execute_bash('pkill -f florence')
     print('florence process killed') 
 
+### Variables & Objects ###
+
+nes = controller.Controller()
+volume = int(execute_bash('awk -F"[][]" \'/Left:/ { print $2 }\' <(amixer sget Master)').replace('%', '').strip()) 
+
 ### Controller Keys Translator ###
 
 def close():
     execute_bash('pkill -f florence')
     print('\nExited program.')
-
-nes = controller.Controller()
 
 def on_press(key):  
     try: 
@@ -103,8 +105,12 @@ def on_press(key):
                 change_mode('desktop')
                 print('**** MODE = DESKTOP ****')
             elif mode == 'desktop':
+                change_mode('general')
+                print('**** MODE = GENERAL ****')
+            elif mode == 'general':
                 change_mode('firefox')
                 print('**** MODE = FIREFOX ****')
+
 
         # Y Button 
         # Open virtual keyboard
@@ -125,9 +131,11 @@ def on_press(key):
                 pyautogui.keyDown('ctrl')
                 pyautogui.click()
                 pyautogui.keyUp('ctrl')
+            elif mode == 'general':
+                execute_bash('amixer set Master toggle')
         
         # X Button 
-        # q as in quit -- close the current mode
+        # close the current node
         elif key.char == nes.x.key:
             pyautogui.press('backspace')
             mode = get_mode()
@@ -140,6 +148,7 @@ def on_press(key):
         # Right Trigger
         # if in desktop mode, arrow down 
         # if in firefox, zoom 
+        # if in general, volume up
         elif key.char == nes.right_trigger.key:
             pyautogui.press('backspace')
 
@@ -148,10 +157,15 @@ def on_press(key):
                 pyautogui.hotkey('ctrl', '+')
             elif mode == 'desktop':
                 pyautogui.press('down')
+            elif mode == 'general':
+                global volume
+                volume += 5 
+                execute_bash(f'amixer set Master {str(volume)}%')
 
         # Left Trigger 
         # if in desktop mode, arrow up 
         # if in firefox, zoom
+        # if in general, volume down 
         elif key.char == nes.left_trigger.key:
             pyautogui.press('backspace')
 
@@ -160,11 +174,14 @@ def on_press(key):
                 pyautogui.hotkey('ctrl', '-')
             elif mode == 'desktop':
                 pyautogui.press('up')
+            elif mode == 'general':
+                # global volume
+                volume -= 5 
+                execute_bash(f'amixer set Master {str(volume)}%')
 
         else:
             print(key)
     except:
-        #print()
         pass
 
 def main():
