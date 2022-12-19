@@ -8,6 +8,7 @@ import time
 import multiprocessing
 
 import timer 
+import controller
 
 
 ### File IO ### 
@@ -78,6 +79,9 @@ def handle_virtual_keyboard():
 
 def close():
     execute_bash('pkill -f florence')
+    print('\nExited program.')
+
+nes = controller.Controller()
 
 def on_press(key):  
     try: 
@@ -90,7 +94,7 @@ def on_press(key):
         
         # Start Button
         # Cycle through modes
-        elif key.char == '1':
+        elif key.char == nes.start.key:
             pyautogui.press('backspace')
 
             mode = get_mode()
@@ -104,14 +108,14 @@ def on_press(key):
 
         # Y Button 
         # Open virtual keyboard
-        elif key.char == '2':
+        elif key.char == nes.y.key:
             pyautogui.press('backspace')
             handle_virtual_keyboard()
 
         # Select Button
         # if in desktop mode, open rofi 
         # if in firefox, click to open in new tab  
-        elif key.char == '3':
+        elif key.char == nes.select.key:
             pyautogui.press('backspace')
             
             mode = get_mode()
@@ -124,7 +128,7 @@ def on_press(key):
         
         # X Button 
         # q as in quit -- close the current mode
-        elif key.char == '4':
+        elif key.char == nes.x.key:
             pyautogui.press('backspace')
             mode = get_mode()
             if mode == 'desktop':
@@ -136,7 +140,7 @@ def on_press(key):
         # Right Trigger
         # if in desktop mode, arrow down 
         # if in firefox, zoom 
-        elif key.char == '5':
+        elif key.char == nes.right_trigger.key:
             pyautogui.press('backspace')
 
             mode = get_mode()
@@ -148,7 +152,7 @@ def on_press(key):
         # Left Trigger 
         # if in desktop mode, arrow up 
         # if in firefox, zoom
-        elif key.char == '6':
+        elif key.char == nes.left_trigger.key:
             pyautogui.press('backspace')
 
             mode = get_mode()
