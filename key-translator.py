@@ -7,6 +7,8 @@ import subprocess
 import time
 import multiprocessing
 
+import timer 
+
 
 ### File IO ### 
 
@@ -52,6 +54,7 @@ def start_virtual_keyboard():
 
     pid = execute_bash(start_virtual_keyboard_command)
 
+
 # This function calls the start_virtual_keyboard function, moves it to a seperate thread,
 # kills the thread, and finally kills the process of the virtual keyboard 
 def handle_virtual_keyboard():
@@ -62,10 +65,14 @@ def handle_virtual_keyboard():
     # Ideally, the keyboard state would not be managed by time, but by user input
     # But for now, if you don't want to see the keyboard anymore, hide it with florence's functionality 
     time.sleep(20)
+
+    # counter = timer.Counter()
+    # counter.start()
+    # counter.wait()
+
     process.terminate()
     execute_bash('pkill -f florence')
-    print('florence process killed')
-
+    print('florence process killed') 
 
 ### Controller Keys Translator ###
 

@@ -8,6 +8,6 @@
 # Kill previous instance of qjoypad is it's already running
 pkill -f qjoypad
 sleep 3
-echo launching...
+echo launched
 qjoypad & 
 ./key-translator.py

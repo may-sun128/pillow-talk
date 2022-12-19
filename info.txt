@@ -10,7 +10,7 @@ modes
         m = zoom out (ctrl -)
 
 TODO
-    change keys from letters to more obscure characters so keyboard input is less likely to be registered as controller input 
+    *******change keys from letters to more obscure characters so keyboard input is less likely to be registered as controller input 
 
     add system-wide zoom function 
 
