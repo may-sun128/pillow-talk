@@ -10,6 +10,8 @@ import multiprocessing
 import timer 
 import controller
 
+from playsound import playsound
+
 
 ### File IO ### 
 
@@ -104,6 +106,7 @@ def on_press(key):
             if mode == 'firefox':
                 change_mode('desktop')
                 print('**** MODE = DESKTOP ****')
+                # playsound('./piano-notes/C4_pp.wav')
             elif mode == 'desktop':
                 change_mode('general')
                 print('**** MODE = GENERAL ****')
@@ -160,6 +163,7 @@ def on_press(key):
             elif mode == 'general':
                 global volume
                 volume += 5 
+                print(volume)
                 execute_bash(f'amixer set Master {str(volume)}%')
 
         # Left Trigger 
@@ -177,15 +181,18 @@ def on_press(key):
             elif mode == 'general':
                 # global volume
                 volume -= 5 
+                print(volume)
                 execute_bash(f'amixer set Master {str(volume)}%')
 
         else:
             print(key)
     except:
+        #print('An error occured')
         pass
-
 def main():
     
+    # playsound('piano-notes/C4_pp.wav')
+
     listener = keyboard.Listener(on_press=on_press)
     listener.start()  # start to listen on a separate thread
     listener.join()  # remove if main thread is polling self.keys

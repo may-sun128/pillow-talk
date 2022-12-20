@@ -3,11 +3,27 @@ pynput    > reading keys
 
 modes
     desktop 
-        p = up 
-        m = down
+        start         : cycle modes
+        y             : open keyboard
+        select        : open rofi 
+        x             : close window
+        right trigger : arrow down
+        left trigger  : arrow up
     firefox 
-        p = zoom in (ctrl +)
-        m = zoom out (ctrl -)
+        start         : cycle modes
+        y             : open keyboard
+        select        : open in new tab 
+        x             : close tab
+        right trigger : zoom
+        left trigger  : zoom
+    general 
+        start         : cycle modes
+        y             : open keyboard
+        select        : meta hold 
+        x             : close tab
+        right trigger : vol up
+        left trigger  : vol down 
+        
 
 TODO
     *******change keys from letters to more obscure characters so keyboard input is less likely to be registered as controller input 

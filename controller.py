@@ -5,6 +5,7 @@ class Button:
 
 
 class Controller:
+	# Buttons A and B are mapped to mouse clicks 
 	start 		  = Button('1', 'start')
 	y 			  = Button('2', 'y')
 	select 		  = Button('3', 'select')
