@@ -1,3 +1,11 @@
+import datetime
+import sys
+
+from PyQt5 import Qt
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QPushButton, QDesktopWidget, QVBoxLayout, QApplication
+
 
 # To simplify the task it is better to create a Widget for the messages as I show
 # below:
@@ -31,12 +39,12 @@ class Message(QWidget):
 class Notification(QWidget):
     signNotifyClose = pyqtSignal(str)
     def __init__(self, parent = None):
-        time = datetime.now()
+        time = datetime.datetime.now()
         currentTime = str(time.hour) + ":" + str(time.minute) + "_"
         self.LOG_TAG = currentTime + self.__class__.__name__ + ": "
         super(QWidget, self).__init__(parent)
 
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        # self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         resolution = QDesktopWidget().screenGeometry(-1)
         screenWidth = resolution.width()
         screenHeight = resolution.height()

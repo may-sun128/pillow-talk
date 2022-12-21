@@ -8,6 +8,7 @@ import time
 import multiprocessing
 
 import controller
+import player
 
 from playsound import playsound
 
@@ -104,13 +105,16 @@ def on_press(key):
             
             if mode == 'firefox':
                 change_mode('desktop')
+                player.play_alert('gui/piano-notes/C5_pp.wav')
                 print('**** MODE = DESKTOP ****')
                 # playsound('./piano-notes/C4_pp.wav')
             elif mode == 'desktop':
                 change_mode('general')
+                player.play_alert('gui/piano-notes/C4_pp.wav')
                 print('**** MODE = GENERAL ****')
             elif mode == 'general':
                 change_mode('firefox')
+                player.play_alert('gui/piano-notes/G4_pp.wav')
                 print('**** MODE = FIREFOX ****')
 
 
@@ -189,8 +193,8 @@ def on_press(key):
         #print('An error occured')
         pass
 def main():
-    
-    # playsound('piano-notes/C4_pp.wav')
+    # always start in general mode
+    change_mode('general')
 
     listener = keyboard.Listener(on_press=on_press)
     listener.start()  # start to listen on a separate thread
