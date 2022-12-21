@@ -7,7 +7,6 @@ import subprocess
 import time
 import multiprocessing
 
-import timer 
 import controller
 
 from playsound import playsound

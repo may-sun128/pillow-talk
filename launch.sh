@@ -10,4 +10,4 @@ pkill -f qjoypad
 sleep 3
 echo launched
 qjoypad & 
-./key-translator.py
+./pillow-talk.py
