@@ -42,3 +42,12 @@ TODO
     
     remove the qjoypad layer altogether and read controller binary directly 
 
+
+
+Installation Read Me
+
+That being said, follow the following steps if you want to set up Pillow Talk on your system:
+
+1. Install and configure qjoypad with your game controller 
+2. Clone Pillow Talk 
+3. Edit the code 
