@@ -202,13 +202,33 @@ def read_stdout():
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
     while True:
         output = process.stdout.readline()
+        print(output.decode())
         if output == '' and process.poll() is not None:
             break
-        # if output:
-        #     print(output.decode().strip())
+        # X
+        elif output.decode().strip() == '0':
+            print('x button clicked')
+            # mode = get_mode()
+            # if mode == 'desktop':
+            #     pyautogui.hotkey('winleft', 'w')
+            # elif mode == 'firefox':
+            #     pyautogui.hotkey('ctrl', 'w')
+            #     print('crtl+w was pressed?')
+        # A
+        elif output.decode().strip() == '1':
+            print('a button clicked')
+            # right click 
+            # pass
+        # B
         elif output.decode().strip() == '2':
-            handle_virtual_keyboard()
-            # print('OUTPUT IS EQUAL TO TWO!!!!!!!!!')
+            print('b button clicked')
+            # left click 
+            # pass
+        # Y
+        elif output.decode().strip() == '3':
+            print('y button clicked')
+            # handle_virtual_keyboard()
+            
     rc = process.poll()
     return rc
 

@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
     __u8 a_button = 1; 
     __u8 b_button = 2;
     __u8 y_button = 3;  
+    __u8 start_button = 9;
 
     //////////////////////////////////////////////////////////
 
@@ -127,26 +128,36 @@ int main(int argc, char *argv[])
         {
             case JS_EVENT_BUTTON:
                 // printf("Event Number:%u\n Event Value:%s\n", event.number, event.value ? "pressed" : "released");
+                // printf("Event Number:%u\n Event Value:%s\n", event.number, event.value);
                 // printf("Event Number:%u\n", event.number);
+                // printf("Event Type:%u\n", event.type);
+                // printf("Event Value:%s\n", event.value);
                 if(event.number == x_button)
                 {
-                    printf("x button was pressed\n");
+                    putchar('0');
+                    putchar('\n');
                 }
                 else if(event.number == a_button)
                 {
-                    printf("a button was pressed\n");
+                    putchar('1');
+                    putchar('\n');
                 }
                 else if(event.number == b_button)
                 {
-                    printf("b button was pressed\n");
+                    putchar('2');
+                    putchar('\n');
                 }
                 // Y listener key: 2
                 else if(event.number == y_button)
                 {
                     // printf("y button was pressed\n");
-                    putchar('2');
+                    putchar('3');
                     putchar('\n');
                     // printf("2 character was put??");
+                }
+                else if(event.number == y_button)
+                {
+                    break; 
                 }
             
 
