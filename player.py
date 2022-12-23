@@ -29,4 +29,4 @@ def play_alert(wave_file_path):
     #close PyAudio  
     p.terminate()  
 
-play_alert('gui/piano-notes/C4_pp.wav')
+# play_alert('gui/piano-notes/C4_pp.wav')
