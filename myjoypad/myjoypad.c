@@ -111,19 +111,50 @@ int main(int argc, char *argv[])
     if (js == -1)
         perror("Could not open joystick");
 
+    //////////////////////////////////////////////////////////
+
+    __u8 x_button = 0;
+    __u8 a_button = 1; 
+    __u8 b_button = 2;
+    __u8 y_button = 3;  
+
+    //////////////////////////////////////////////////////////
+
     /* This loop will exit if the controller is unplugged. */
     while (read_event(js, &event) == 0)
     {
         switch (event.type)
         {
             case JS_EVENT_BUTTON:
-                printf("Button %u %s\n", event.number, event.value ? "pressed" : "released");
-                break;
-            case JS_EVENT_AXIS:
-                axis = get_axis_state(&event, axes);
-                if (axis < 3)
-                    printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
-                break;
+                // printf("Event Number:%u\n Event Value:%s\n", event.number, event.value ? "pressed" : "released");
+                // printf("Event Number:%u\n", event.number);
+                if(event.number == x_button)
+                {
+                    printf("x button was pressed\n");
+                }
+                else if(event.number == a_button)
+                {
+                    printf("a button was pressed\n");
+                }
+                else if(event.number == b_button)
+                {
+                    printf("b button was pressed\n");
+                }
+                // Y listener key: 2
+                else if(event.number == y_button)
+                {
+                    // printf("y button was pressed\n");
+                    putchar('2');
+                    putchar('\n');
+                    // printf("2 character was put??");
+                }
+            
+
+            // case JS_EVENT_AXIS:
+            //     axis = get_axis_state(&event, axes);
+            //     if (axis < 3)
+            //         printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
+            //     break;
             default:
                 /* Ignore init events. */
                 break;

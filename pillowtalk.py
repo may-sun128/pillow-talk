@@ -6,11 +6,13 @@ import os
 import subprocess
 import time
 import multiprocessing
+import shlex
 
 import controller
 import player
 
-from playsound import playsound
+# from playsound import playsound
+
 
 
 ### File IO ### 
@@ -81,7 +83,7 @@ def handle_virtual_keyboard():
 nes = controller.Controller()
 volume = int(execute_bash('awk -F"[][]" \'/Left:/ { print $2 }\' <(amixer sget Master)').replace('%', '').strip()) 
 
-### Controller Keys Translator ###
+### Key Listener ###
 
 def close():
     execute_bash('pkill -f florence')
@@ -192,12 +194,37 @@ def on_press(key):
     except:
         #print('An error occured')
         pass
-def main():
-    # always start in general mode
-    change_mode('general')
 
-    listener = keyboard.Listener(on_press=on_press)
-    listener.start()  # start to listen on a separate thread
-    listener.join()  # remove if main thread is polling self.keys
+### STDOUT ### 
+
+def read_stdout():
+    command = 'myjoypad/./a.out'
+    process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
+    while True:
+        output = process.stdout.readline()
+        if output == '' and process.poll() is not None:
+            break
+        # if output:
+        #     print(output.decode().strip())
+        elif output.decode().strip() == '2':
+            handle_virtual_keyboard()
+            # print('OUTPUT IS EQUAL TO TWO!!!!!!!!!')
+    rc = process.poll()
+    return rc
+
+
+def main():
+    ### Key listener stuff ####
+
+    # always start in general mode
+    # change_mode('general')
+
+    # listener = keyboard.Listener(on_press=on_press)
+    # listener.start()  # start to listen on a separate thread
+    # listener.join()  # remove if main thread is polling self.keys
+
+    ### stdout stuff ###
+
+    read_stdout()
 
 main()
