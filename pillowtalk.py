@@ -160,9 +160,9 @@ def on_press(key):
 
             mode = get_mode()
             if mode == 'firefox':
-                pyautogui.hotkey('ctrl', '+')
-            elif mode == 'desktop':
                 pyautogui.press('down')
+            elif mode == 'desktop':
+                pyautogui.hotkey('ctrl', '+')
             elif mode == 'general':
                 global volume
                 volume += 5 
@@ -178,9 +178,9 @@ def on_press(key):
 
             mode = get_mode()
             if mode == 'firefox':
-                pyautogui.hotkey('ctrl', '-')
-            elif mode == 'desktop':
                 pyautogui.press('up')
+            elif mode == 'desktop':
+                pyautogui.hotkey('ctrl', '-')
             elif mode == 'general':
                 # global volume
                 volume -= 5 
