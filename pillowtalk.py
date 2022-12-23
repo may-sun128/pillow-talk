@@ -202,32 +202,49 @@ def read_stdout():
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
     while True:
         output = process.stdout.readline()
-        print(output.decode())
+        # print(output.decode())
         if output == '' and process.poll() is not None:
             break
         # X
         elif output.decode().strip() == '0':
             print('x button clicked')
-            # mode = get_mode()
-            # if mode == 'desktop':
-            #     pyautogui.hotkey('winleft', 'w')
-            # elif mode == 'firefox':
-            #     pyautogui.hotkey('ctrl', 'w')
-            #     print('crtl+w was pressed?')
+            mode = get_mode()
+            if mode == 'desktop':
+                pyautogui.hotkey('winleft', 'w')
+            elif mode == 'firefox':
+                pyautogui.hotkey('ctrl', 'w')
+                print('crtl+w was pressed?')
         # A
         elif output.decode().strip() == '1':
             print('a button clicked')
-            # right click 
-            # pass
+            pyautogui.click(button='right')
         # B
         elif output.decode().strip() == '2':
             print('b button clicked')
+            pyautogui.click(button='left')
             # left click 
             # pass
         # Y
         elif output.decode().strip() == '3':
             print('y button clicked')
+            handle_virtual_keyboard()
+        # Left Trigger
+        elif output.decode().strip() == '4':
+            print('left trigger clicked')
             # handle_virtual_keyboard()
+        # Right Trigger
+        elif output.decode().strip() == '5':
+            print('right trigger clicked')
+            # handle_virtual_keyboard()
+        # Select Button
+        elif output.decode().strip() == '8':
+            print('select button clicked')
+            # handle_virtual_keyboard()
+        # Start Button
+        elif output.decode().strip() == '9':
+            print('start button clicked')
+            # handle_virtual_keyboard()
+
             
     rc = process.poll()
     return rc

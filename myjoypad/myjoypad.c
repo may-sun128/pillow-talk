@@ -116,7 +116,10 @@ int main(int argc, char *argv[])
     __u8 x_button = 0;
     __u8 a_button = 1; 
     __u8 b_button = 2;
-    __u8 y_button = 3;  
+    __u8 y_button = 3; 
+    __u8 left_trigger = 4; 
+    __u8 right_trigger = 5;
+    __u8 select_button = 8; 
     __u8 start_button = 9;
 
     //////////////////////////////////////////////////////////
@@ -132,34 +135,52 @@ int main(int argc, char *argv[])
                 // printf("Event Number:%u\n", event.number);
                 // printf("Event Type:%u\n", event.type);
                 // printf("Event Value:%s\n", event.value);
-                if(event.number == x_button)
+                if(event.value) 
                 {
-                    putchar('0');
-                    putchar('\n');
+                    if(event.number == x_button)
+                    {
+                        putchar('0');
+                        putchar('\n');
+                    }
+                    else if(event.number == a_button)
+                    {
+                        putchar('1');
+                        putchar('\n');
+                    }
+                    else if(event.number == b_button)
+                    {
+                        putchar('2');
+                        putchar('\n');
+                    }
+                    // Y listener key: 2
+                    else if(event.number == y_button)
+                    {
+                        // printf("y button was pressed\n");
+                        putchar('3');
+                        putchar('\n');
+                        // printf("2 character was put??");
+                    }
+                    else if(event.number == left_trigger)
+                    {
+                        putchar('4');
+                        putchar('\n');
+                    }
+                    else if(event.number == right_trigger)
+                    {
+                        putchar('5');
+                        putchar('\n');
+                    }
+                    else if(event.number == select_button)
+                    {
+                        putchar('8');
+                        putchar('\n');
+                    }
+                    else if(event.number == start_button)
+                    {
+                        putchar('9');
+                        putchar('\n');
+                    }
                 }
-                else if(event.number == a_button)
-                {
-                    putchar('1');
-                    putchar('\n');
-                }
-                else if(event.number == b_button)
-                {
-                    putchar('2');
-                    putchar('\n');
-                }
-                // Y listener key: 2
-                else if(event.number == y_button)
-                {
-                    // printf("y button was pressed\n");
-                    putchar('3');
-                    putchar('\n');
-                    // printf("2 character was put??");
-                }
-                else if(event.number == y_button)
-                {
-                    break; 
-                }
-            
 
             // case JS_EVENT_AXIS:
             //     axis = get_axis_state(&event, axes);
