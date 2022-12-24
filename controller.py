@@ -17,28 +17,6 @@ class Controller:
         print(self.start.name + ' : ' + self.start.key)
 
 
-class JoyStick:
-    # def __init__(self):
-    #     print('_JoyStick (Parent) has been instanciated')
-    #     super().__init__()
-
-    def a_button_press(self):
-        print('button a is pressed')
-        pass
-    def b_button_press(self):
-        pass
-    def x_button_press(self):
-        pass
-    def y_button_press(self):
-        pass
-    def start_button_press(self):
-        pass
-    def select_button_press(self):
-        pass
-    def right_trigger_press(self):
-        pass
-    def left_trigger_press(self):
-        pass
 
 
 

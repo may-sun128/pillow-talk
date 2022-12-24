@@ -81,7 +81,7 @@ def handle_virtual_keyboard():
 
 ### Variables & Objects ###
 
-nes = controller.Controller()
+# nes = controller.Controller()
 volume = int(execute_bash('awk -F"[][]" \'/Left:/ { print $2 }\' <(amixer sget Master)').replace('%', '').strip()) 
 
 ### Key Listener ###
@@ -196,52 +196,71 @@ def on_press(key):
         #print('An error occured')
         pass
 
+### User-Defined Functions ### 
+
+def x_pressed():
+    print('x button clicked')
+    mode = get_mode()
+    if mode == 'desktop':
+        pyautogui.hotkey('winleft', 'w')
+    elif mode == 'firefox':
+        pyautogui.hotkey('ctrl', 'w')
+        print('crtl+w was pressed?')
+
+def b_pressed():
+    print('b button clicked')
+    pyautogui.click(button='left')
+
+def y_pressed():
+    print('y button clicked')
+    handle_virtual_keyboard()
+
+def a_pressed():
+    print('a button clicked')
+    pyautogui.click(button='right')
+
 ### STDOUT ### 
 
-def read_stdout():
-    command = 'dummy.sh/./a.out'
+def read_stdout(joystick):
+    command = 'myjoypad/./a.out'
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
     while True:
         output = process.stdout.readline()
         # print(output.decode())
         if output == '' and process.poll() is not None:
             break
+        
         # X
         elif output.decode().strip() == '0':
-            print('x button clicked')
-            mode = get_mode()
-            if mode == 'desktop':
-                pyautogui.hotkey('winleft', 'w')
-            elif mode == 'firefox':
-                pyautogui.hotkey('ctrl', 'w')
-                print('crtl+w was pressed?')
+            joystick.x_button_pressed()
+        
         # A
         elif output.decode().strip() == '1':
-            # print('a button clicked')
-            # pyautogui.click(button='right')
-            pass
+            joystick.a_button_pressed()
+            
         # B
         elif output.decode().strip() == '2':
-            print('b button clicked')
-            pyautogui.click(button='left')
-            # left click 
-            # pass
+            joystick.b_button_pressed()
+        
         # Y
         elif output.decode().strip() == '3':
-            print('y button clicked')
-            handle_virtual_keyboard()
+            joystick.y_button_pressed()
+        
         # Left Trigger
         elif output.decode().strip() == '4':
             print('left trigger clicked')
             # handle_virtual_keyboard()
+        
         # Right Trigger
         elif output.decode().strip() == '5':
             print('right trigger clicked')
             # handle_virtual_keyboard()
+        
         # Select Button
         elif output.decode().strip() == '8':
             print('select button clicked')
             # handle_virtual_keyboard()
+        
         # Start Button
         elif output.decode().strip() == '9':
             print('start button clicked')
@@ -251,24 +270,12 @@ def read_stdout():
     rc = process.poll()
     return rc
 
-
 def main():
-    '''
-    ### Key listener stuff ####
-
-    # always start in general mode
-    change_mode('general')
-
-    listener = keyboard.Listener(on_press=on_press)
-    listener.start()  # start to listen on a separate thread
-    listener.join()  # remove if main thread is polling self.keys
-    '''
-    def hello_world():
-        print('hello world')
-
     js = joystick.JoyStick()
-    js.b_button_pressed = hello_world
-    js.b_button_pressed()
-    # read_stdout()
+    js.a_button_pressed = a_pressed
+    js.b_button_pressed = b_pressed
+    js.x_button_pressed = x_pressed
+    js.y_button_pressed = y_pressed
+    read_stdout(js)
 
 main()
