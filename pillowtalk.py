@@ -10,6 +10,7 @@ import shlex
 
 import controller
 import player
+import joystick
 
 # from playsound import playsound
 
@@ -198,7 +199,7 @@ def on_press(key):
 ### STDOUT ### 
 
 def read_stdout():
-    command = 'myjoypad/./a.out'
+    command = 'dummy.sh/./a.out'
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
     while True:
         output = process.stdout.readline()
@@ -216,8 +217,9 @@ def read_stdout():
                 print('crtl+w was pressed?')
         # A
         elif output.decode().strip() == '1':
-            print('a button clicked')
-            pyautogui.click(button='right')
+            # print('a button clicked')
+            # pyautogui.click(button='right')
+            pass
         # B
         elif output.decode().strip() == '2':
             print('b button clicked')
@@ -251,17 +253,22 @@ def read_stdout():
 
 
 def main():
+    '''
     ### Key listener stuff ####
 
     # always start in general mode
-    # change_mode('general')
+    change_mode('general')
 
-    # listener = keyboard.Listener(on_press=on_press)
-    # listener.start()  # start to listen on a separate thread
-    # listener.join()  # remove if main thread is polling self.keys
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()  # start to listen on a separate thread
+    listener.join()  # remove if main thread is polling self.keys
+    '''
+    def hello_world():
+        print('hello world')
 
-    ### stdout stuff ###
-
-    read_stdout()
+    js = joystick.JoyStick()
+    js.b_button_pressed = hello_world
+    js.b_button_pressed()
+    # read_stdout()
 
 main()
