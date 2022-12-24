@@ -13,6 +13,7 @@
  * See also:
  * https://www.kernel.org/doc/Documentation/input/joystick-api.txt
  */
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -97,6 +98,7 @@ int main(int argc, char *argv[])
 {
     const char *device;
     int js;
+    // js_event is from linux/joystick.h
     struct js_event event;
     struct axis_state axes[3] = {0};
     size_t axis;
@@ -111,8 +113,6 @@ int main(int argc, char *argv[])
     if (js == -1)
         perror("Could not open joystick");
 
-    //////////////////////////////////////////////////////////
-
     __u8 x_button = 0;
     __u8 a_button = 1; 
     __u8 b_button = 2;
@@ -121,8 +121,6 @@ int main(int argc, char *argv[])
     __u8 right_trigger = 5;
     __u8 select_button = 8; 
     __u8 start_button = 9;
-
-    //////////////////////////////////////////////////////////
 
     /* This loop will exit if the controller is unplugged. */
     while (read_event(js, &event) == 0)
@@ -152,13 +150,10 @@ int main(int argc, char *argv[])
                         putchar('2');
                         putchar('\n');
                     }
-                    // Y listener key: 2
                     else if(event.number == y_button)
                     {
-                        // printf("y button was pressed\n");
                         putchar('3');
                         putchar('\n');
-                        // printf("2 character was put??");
                     }
                     else if(event.number == left_trigger)
                     {

@@ -161,50 +161,49 @@ def lt_pressed():
 def read_stdout(joystick):
     command = 'myjoypad/./a.out'
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
+    count = 0
     while True:
+        count += 1
+        print(count)
         output = process.stdout.readline()
-        # print(output.decode())
         if output == '' and process.poll() is not None:
             break
-        
-        # X
+        # X Button
         elif output.decode().strip() == '0':
             joystick.x_button_pressed()
-        
-        # A
+        # A Button
         elif output.decode().strip() == '1':
             joystick.a_button_pressed()
-            
-        # B
+        # B Button
         elif output.decode().strip() == '2':
             joystick.b_button_pressed()
-        
-        # Y
+        # Y Button
         elif output.decode().strip() == '3':
             joystick.y_button_pressed()
-        
         # Left Trigger
         elif output.decode().strip() == '4':
             joystick.left_trigger_pressed()
-        
         # Right Trigger
         elif output.decode().strip() == '5':
             joystick.right_trigger_pressed()
-        
         # Select Button
         elif output.decode().strip() == '8':
             joystick.select_button_pressed()
-        
         # Start Button
         elif output.decode().strip() == '9':
             joystick.start_button_pressed()
-
+        else:
+            print('stdin not button code')
+            break
             
     rc = process.poll()
     return rc
 
 def main():
+    # instanciate joystick object 
     js = joystick.JoyStick()
+
+    # assign joystick events to custom functions 
     js.a_button_pressed = a_pressed
     js.b_button_pressed = b_pressed
     js.x_button_pressed = x_pressed
@@ -213,6 +212,8 @@ def main():
     js.select_button_pressed = select_pressed
     js.right_trigger_pressed = rt_pressed
     js.left_trigger_pressed = lt_pressed
+    
+    # read stdin/out from myjoypad.c 
     read_stdout(js)
 
 main()
