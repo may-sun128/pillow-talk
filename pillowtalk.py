@@ -12,9 +12,6 @@ import controller
 import player
 import joystick
 
-# from playsound import playsound
-
-
 
 ### File IO ### 
 
@@ -81,120 +78,7 @@ def handle_virtual_keyboard():
 
 ### Variables & Objects ###
 
-# nes = controller.Controller()
 volume = int(execute_bash('awk -F"[][]" \'/Left:/ { print $2 }\' <(amixer sget Master)').replace('%', '').strip()) 
-
-### Key Listener ###
-
-def close():
-    execute_bash('pkill -f florence')
-    print('\nExited program.')
-
-def on_press(key):  
-    try: 
-        # Stop listener
-        # Escape key not assinged to key on physical controller 
-        # Just for debugging/development
-        if key == keyboard.Key.esc:
-            close()
-            return False  
-        
-        # Start Button
-        # Cycle through modes
-        elif key.char == nes.start.key:
-            pyautogui.press('backspace')
-
-            mode = get_mode()
-            
-            if mode == 'firefox':
-                change_mode('desktop')
-                player.play_alert('gui/piano-notes/C5_pp.wav')
-                print('**** MODE = DESKTOP ****')
-                # playsound('./piano-notes/C4_pp.wav')
-            elif mode == 'desktop':
-                change_mode('general')
-                player.play_alert('gui/piano-notes/C4_pp.wav')
-                print('**** MODE = GENERAL ****')
-            elif mode == 'general':
-                change_mode('firefox')
-                player.play_alert('gui/piano-notes/G4_pp.wav')
-                print('**** MODE = FIREFOX ****')
-
-
-        # Y Button 
-        # Open virtual keyboard
-        elif key.char == nes.y.key:
-            pyautogui.press('backspace')
-            handle_virtual_keyboard()
-
-        # Select Button
-        # if in desktop mode, open rofi 
-        # if in firefox, click to open in new tab  
-        elif key.char == nes.select.key:
-            pyautogui.press('backspace')
-            
-            mode = get_mode()
-            if mode == 'desktop':
-                pyautogui.hotkey('winleft', 'r')
-            elif mode == 'firefox':
-                pyautogui.keyDown('ctrl')
-                pyautogui.click()
-                pyautogui.keyUp('ctrl')
-            elif mode == 'general':
-                execute_bash('amixer set Master toggle')
-        
-        # X Button 
-        # close the current node
-        elif key.char == nes.x.key:
-            pyautogui.press('backspace')
-            mode = get_mode()
-            if mode == 'desktop':
-                pyautogui.hotkey('winleft', 'w')
-            elif mode == 'firefox':
-                pyautogui.hotkey('ctrl', 'w')
-                print('crtl+w was pressed?')
-        
-        # Right Trigger
-        # if in desktop mode, arrow down 
-        # if in firefox, zoom 
-        # if in general, volume up
-        elif key.char == nes.right_trigger.key:
-            pyautogui.press('backspace')
-
-            mode = get_mode()
-            if mode == 'firefox':
-                pyautogui.press('down')
-            elif mode == 'desktop':
-                pyautogui.hotkey('ctrl', '+')
-            elif mode == 'general':
-                global volume
-                volume += 5 
-                print(volume)
-                execute_bash(f'amixer set Master {str(volume)}%')
-
-        # Left Trigger 
-        # if in desktop mode, arrow up 
-        # if in firefox, zoom
-        # if in general, volume down 
-        elif key.char == nes.left_trigger.key:
-            pyautogui.press('backspace')
-
-            mode = get_mode()
-            if mode == 'firefox':
-                pyautogui.press('up')
-            elif mode == 'desktop':
-                pyautogui.hotkey('ctrl', '-')
-            elif mode == 'general':
-                # global volume
-                volume -= 5 
-                print(volume)
-                execute_bash(f'amixer set Master {str(volume)}%')
-
-        else:
-            print(key)
-    except:
-        #print('An error occured')
-        pass
 
 ### User-Defined Functions ### 
 
@@ -218,6 +102,59 @@ def y_pressed():
 def a_pressed():
     print('a button clicked')
     pyautogui.click(button='right')
+
+def start_pressed():
+    pyautogui.press('backspace')
+
+    mode = get_mode()
+    
+    if mode == 'firefox':
+        change_mode('desktop')
+        player.play_alert('gui/piano-notes/C5_pp.wav')
+        print('**** MODE = DESKTOP ****')
+        # playsound('./piano-notes/C4_pp.wav')
+    elif mode == 'desktop':
+        change_mode('general')
+        player.play_alert('gui/piano-notes/C4_pp.wav')
+        print('**** MODE = GENERAL ****')
+    elif mode == 'general':
+        change_mode('firefox')
+        player.play_alert('gui/piano-notes/G4_pp.wav')
+        print('**** MODE = FIREFOX ****')
+
+def select_pressed():
+    mode = get_mode()
+    if mode == 'desktop':
+        pyautogui.hotkey('winleft', 'r')
+    elif mode == 'firefox':
+        pyautogui.keyDown('ctrl')
+        pyautogui.click()
+        pyautogui.keyUp('ctrl')
+    elif mode == 'general':
+        execute_bash('amixer set Master toggle')
+
+def rt_pressed():
+    mode = get_mode()
+    if mode == 'firefox':
+        pyautogui.press('down')
+    elif mode == 'desktop':
+        pyautogui.hotkey('ctrl', '+')
+    elif mode == 'general':
+        global volume
+        volume += 5 
+        print(volume)
+        execute_bash(f'amixer set Master {str(volume)}%')
+def lt_pressed():
+    mode = get_mode()
+    if mode == 'firefox':
+        pyautogui.press('up')
+    elif mode == 'desktop':
+        pyautogui.hotkey('ctrl', '-')
+    elif mode == 'general':
+        # global volume
+        volume -= 5 
+        print(volume)
+        execute_bash(f'amixer set Master {str(volume)}%')
 
 ### STDOUT ### 
 
@@ -248,23 +185,19 @@ def read_stdout(joystick):
         
         # Left Trigger
         elif output.decode().strip() == '4':
-            print('left trigger clicked')
-            # handle_virtual_keyboard()
+            joystick.left_trigger_pressed()
         
         # Right Trigger
         elif output.decode().strip() == '5':
-            print('right trigger clicked')
-            # handle_virtual_keyboard()
+            joystick.right_trigger_pressed()
         
         # Select Button
         elif output.decode().strip() == '8':
-            print('select button clicked')
-            # handle_virtual_keyboard()
+            joystick.select_button_pressed()
         
         # Start Button
         elif output.decode().strip() == '9':
-            print('start button clicked')
-            # handle_virtual_keyboard()
+            joystick.start_button_pressed()
 
             
     rc = process.poll()
@@ -276,6 +209,10 @@ def main():
     js.b_button_pressed = b_pressed
     js.x_button_pressed = x_pressed
     js.y_button_pressed = y_pressed
+    js.start_button_pressed = start_pressed
+    js.select_button_pressed = select_pressed
+    js.right_trigger_pressed = rt_pressed
+    js.left_trigger_pressed = lt_pressed
     read_stdout(js)
 
 main()
