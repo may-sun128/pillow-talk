@@ -19,7 +19,11 @@ class Controller:
 # NES = Controller()
 # NES.display_controls()
 
-
+class JoyPad:
+	def start_pressed(func):
+		func()
+	def a_pressed(func):
+		func()
 
 
 
