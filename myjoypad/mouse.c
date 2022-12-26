@@ -92,20 +92,6 @@ void moveMouse()
 
 int main()
 {
-    // Variables 
-    // int number_of_screens;
-    // int i;
-    // Bool result;
-    // Window *root_windows;
-    // Window window_returned;
-    // int root_x, root_y;
-    // int win_x, win_y;
-    // unsigned int mask_return;
-
-    // Display *dpy;
-	// Window root_window;
-
-	// moveMouse();
     struct cursor_position cp; 
 	cp = getCursorPosition();
 	printf("Mouse is at (%d,%d)\n", cp.x, cp.y);

@@ -19,6 +19,9 @@ static int _XlibErrorHandler(Display *display, XErrorEvent *event)
 	fprintf(stderr, "An error occured detecting the mouse position\n");
     return True;
 }
+struct cursor_position {
+    int x, y; 
+};
 
 // working, though not returning cursor position but printing it 
 int getCursorPosition()
@@ -86,3 +89,4 @@ int main()
 	return 0;
 }
 
+// ------------------------------------------------------------------------------------------------------

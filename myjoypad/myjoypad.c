@@ -103,27 +103,101 @@ size_t get_axis_state(struct js_event *event, struct axis_state axes[3])
     return axis;
 }
 
-void MoveMouse()
+// -------------- mouse.c -----------------------------------------------------------------
+
+/*
+ * Note: you must link the X library when compiling for this to work 
+ * `gcc <program-name>.c -lX11`
+ * https://stackoverflow.com/questions/2433447/how-to-set-mouse-cursor-position-in-c-on-linux
+*/
+
+static int _XlibErrorHandler(Display *display, XErrorEvent *event)
 {
-    //
+	fprintf(stderr, "An error occured detecting the mouse position\n");
+    return True;
+}
+
+
+
+struct cursor_position
+{
+    int x, y; 
+};
+
+// working, though not returning cursor position but printing it 
+struct cursor_position getCursorPosition()
+{
+	int number_of_screens;
+    int i;
+    Bool result;
+    Window *root_windows;
+    Window window_returned;
+    int root_x, root_y;
+    int win_x, win_y;
+    unsigned int mask_return;
+
+    Display *display = XOpenDisplay(NULL);
+    assert(display);
+    XSetErrorHandler(_XlibErrorHandler);
+    number_of_screens = XScreenCount(display);
+    // fprintf(stderr, "There are %d screens available in this X session\n", number_of_screens);
+    root_windows = malloc(sizeof(Window) * number_of_screens);
+    for (i = 0; i < number_of_screens; i++) {
+        root_windows[i] = XRootWindow(display, i);
+    }
+    for (i = 0; i < number_of_screens; i++) {
+        result = XQueryPointer(display, root_windows[i], &window_returned,
+                &window_returned, &root_x, &root_y, &win_x, &win_y,
+                &mask_return);
+        if (result == True) {
+            break;
+        }
+    }
+    if (result != True) {
+        fprintf(stderr, "No mouse found.\n");
+        // return -1;
+    }
+    // printf("Mouse is at (%d,%d)\n", root_x, root_y);
+    
+    // -------------------------------------------------------------
+    struct cursor_position cp;
+    cp.x = root_x;
+    cp.y = root_y; 
+    // -------------------------------------------------------------
+    
+    free(root_windows);
+    XCloseDisplay(display);
+    // return 0;
+    return cp; 
+}
+
+// working 
+void moveMouse(int x, int y)
+{
+	Display *dpy;
+	Window root_window; 
+
+	dpy = XOpenDisplay(0);
+	root_window = XRootWindow(dpy, 0);
+	XSelectInput(dpy, root_window, KeyReleaseMask);
+
+	// XWarpPointer(display, src_w, dest_w, src_x, src_y, src_width, src_height, dest_x, dest_y)
+
+	// top left
+	XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, x, y);
+
+	XFlush(dpy);
 }
 
 int main(int argc, char *argv[])
 {
     struct cursor_position cp; 
-	cp = getCursorPosition();
-	printf("Mouse is at (%d,%d)\n", cp.x, cp.y);
-    return 0;
-    
-    // ----------------- ^ mouse.c ----------------------------
-
     const char *device;
     int js;
     // js_event is from linux/joystick.h
     struct js_event event;
     struct axis_state axes[3] = {0};
     size_t axis;
-
     if (argc > 1)
         device = argv[1];
     else
@@ -141,7 +215,7 @@ int main(int argc, char *argv[])
     __u8 left_trigger = 4; 
     __u8 right_trigger = 5;
     __u8 select_button = 8; 
-    __u8 start_button = 9;
+    __u8 start_button = 9; 
 
     /* This loop will exit if the controller is unplugged. */
     while (read_event(js, &event) == 0)
@@ -149,12 +223,7 @@ int main(int argc, char *argv[])
         switch (event.type)
         {
             case JS_EVENT_BUTTON:
-                // printf("Event Number:%u\n Event Value:%s\n", event.number, event.value ? "pressed" : "released");
-                // printf("Event Number:%u\n Event Value:%s\n", event.number, event.value);
-                // printf("Event Number:%u\n", event.number);
-                // printf("Event Type:%u\n", event.type);
-                // printf("Event Value:%s\n", event.value);
-                
+
                 // if event.value == true, ie if is_pressed 
                 if(event.value) 
                 {
@@ -200,11 +269,34 @@ int main(int argc, char *argv[])
                     }
                 }
 
-            // case JS_EVENT_AXIS:
-            //     axis = get_axis_state(&event, axes);
-            //     if (axis < 3)
-            //         printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
-            //     break;
+            case JS_EVENT_AXIS:
+                // axis = get_axis_state(&event, axes);
+                // if (axis < 3)
+                //     printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
+                // break;
+
+                // Move Mouse Left
+                cp = getCursorPosition();
+                printf("X:%d\nY:%d\n", cp.x, cp.y);
+                printf("----------------------------------\n");
+                if(event.number == 0)
+                {
+                    int new_x = cp.x; 
+                    new_x -= 50; 
+                    moveMouse(new_x, cp.y);
+                }
+                else if(event.number == 1)
+                {
+                    int new_y = cp.y; 
+                    new_y += 50; 
+                    moveMouse(cp.x, new_y);
+                }
+                else if(event.number == 2)
+                {
+                    int new_x = cp.x; 
+                    new_x -= 50; 
+                    moveMouse(new_x, cp.y);
+                }
             default:
                 /* Ignore init events. */
                 break;
@@ -217,95 +309,8 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-
-// -------------- mouse.c -----------------------------------------------------------------
-
+// psuedo 
 /*
- * Note: you must link the X library when compiling for this to work 
- * `gcc <program-name>.c -lX11`
- * https://stackoverflow.com/questions/2433447/how-to-set-mouse-cursor-position-in-c-on-linux
+    1.) connect to display server
+        - 
 */
-
-static int _XlibErrorHandler(Display *display, XErrorEvent *event)
-{
-	fprintf(stderr, "An error occured detecting the mouse position\n");
-    return True;
-}
-
-struct cursor_position
-{
-    int x, y; 
-};
-
-// working, though not returning cursor position but printing it 
-struct cursor_position getCursorPosition()
-{
-	int number_of_screens;
-    int i;
-    Bool result;
-    Window *root_windows;
-    Window window_returned;
-    int root_x, root_y;
-    int win_x, win_y;
-    unsigned int mask_return;
-
-    Display *display = XOpenDisplay(NULL);
-    assert(display);
-    XSetErrorHandler(_XlibErrorHandler);
-    number_of_screens = XScreenCount(display);
-    fprintf(stderr, "There are %d screens available in this X session\n", number_of_screens);
-    root_windows = malloc(sizeof(Window) * number_of_screens);
-    for (i = 0; i < number_of_screens; i++) {
-        root_windows[i] = XRootWindow(display, i);
-    }
-    for (i = 0; i < number_of_screens; i++) {
-        result = XQueryPointer(display, root_windows[i], &window_returned,
-                &window_returned, &root_x, &root_y, &win_x, &win_y,
-                &mask_return);
-        if (result == True) {
-            break;
-        }
-    }
-    if (result != True) {
-        fprintf(stderr, "No mouse found.\n");
-        // return -1;
-    }
-    // printf("Mouse is at (%d,%d)\n", root_x, root_y);
-    
-    // -------------------------------------------------------------
-    struct cursor_position cp;
-    cp.x = root_x;
-    cp.y = root_y; 
-    // -------------------------------------------------------------
-    
-    free(root_windows);
-    XCloseDisplay(display);
-    // return 0;
-    return cp; 
-}
-
-// working 
-void moveMouse()
-{
-	Display *dpy;
-	Window root_window; 
-
-	dpy = XOpenDisplay(0);
-	root_window = XRootWindow(dpy, 0);
-	XSelectInput(dpy, root_window, KeyReleaseMask);
-
-	// XWarpPointer(display, src_w, dest_w, src_x, src_y, src_width, src_height, dest_x, dest_y)
-
-	// top left
-	XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, 0, 0);
-
-	XFlush(dpy);
-}
-
-// int main()
-// {
-//     struct cursor_position cp; 
-// 	cp = getCursorPosition();
-// 	printf("Mouse is at (%d,%d)\n", cp.x, cp.y);
-//     return 0;
-// }
