@@ -18,16 +18,19 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <linux/joystick.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-// #include <stdio.h> 
+#include <stdlib.h> 
 #include <X11/X.h> 
 #include <X11/Xlib.h> 
 #include <X11/Xutil.h> 
 #include <assert.h>
 #include <unistd.h>
 #include <malloc.h>
+
+/*
+ * Note: you must link the X library when compiling for this to work 
+ * `gcc <program-name>.c -lX11`
+ * https://stackoverflow.com/questions/2433447/how-to-set-mouse-cursor-position-in-c-on-linux
+*/
 
 /**
  * Reads a joystick event from the joystick device.
@@ -48,76 +51,17 @@ int read_event(int fd, struct js_event *event)
 }
 
 /**
- * Returns the number of axes on the controller or 0 if an error occurs.
- */
-size_t get_axis_count(int fd)
-{
-    __u8 axes;
-
-    if (ioctl(fd, JSIOCGAXES, &axes) == -1)
-        return 0;
-
-    return axes;
-}
-
-/**
- * Returns the number of buttons on the controller or 0 if an error occurs.
- */
-size_t get_button_count(int fd)
-{
-    __u8 buttons;
-    if (ioctl(fd, JSIOCGBUTTONS, &buttons) == -1)
-        return 0;
-
-    return buttons;
-}
-
-/**
  * Current state of an axis.
  */
 struct axis_state {
     short x, y;
 };
 
-/**
- * Keeps track of the current axis state.
- *
- * NOTE: This function assumes that axes are numbered starting from 0, and that
- * the X axis is an even number, and the Y axis is an odd number. However, this
- * is usually a safe assumption.
- *
- * Returns the axis that the event indicated.
- */
-size_t get_axis_state(struct js_event *event, struct axis_state axes[3])
-{
-    size_t axis = event->number / 2;
-
-    if (axis < 3)
-    {
-        if (event->number % 2 == 0)
-            axes[axis].x = event->value;
-        else
-            axes[axis].y = event->value;
-    }
-
-    return axis;
-}
-
-// -------------- mouse.c -----------------------------------------------------------------
-
-/*
- * Note: you must link the X library when compiling for this to work 
- * `gcc <program-name>.c -lX11`
- * https://stackoverflow.com/questions/2433447/how-to-set-mouse-cursor-position-in-c-on-linux
-*/
-
 static int _XlibErrorHandler(Display *display, XErrorEvent *event)
 {
 	fprintf(stderr, "An error occured detecting the mouse position\n");
     return True;
 }
-
-
 
 struct cursor_position
 {
@@ -219,6 +163,8 @@ int main(int argc, char *argv[])
 
     int is_running = 0; 
 
+    int new_x;
+    int new_y;
     /* This loop will exit if the controller is unplugged. */
     while (read_event(js, &event) == 0 && is_running == 0)
     {
@@ -274,43 +220,37 @@ int main(int argc, char *argv[])
                 }
 
             case JS_EVENT_AXIS:
-                // axis = get_axis_state(&event, axes);
-                // if (axis < 3)
-                //     printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
-                // break;
-
-                // Move Mouse Left
                 cp = getCursorPosition();
-                printf("X:%d\nY:%d\n", cp.x, cp.y);
-                printf("----------------------------------\n");
-                printf("Event Number: %d\n", event.number);
-                printf("----------------------------------\n");
-                printf("Event Value: %d\n", event.value);
+                // printf("X:%d\nY:%d\n", cp.x, cp.y);
+                // printf("----------------------------------\n");
+                // printf("Event Number: %d\n", event.number);
+                // printf("----------------------------------\n");
+                // printf("Event Value: %d\n", event.value);
                 // right
                 if(event.number == 0 && event.value > 0)
                 {
-                    int new_x = cp.x; 
+                    new_x = cp.x; 
                     new_x += 50; 
                     moveMouse(new_x, cp.y);
                 }
                 // left
                 else if(event.number == 0 && event.value < 0)
                 {
-                    int new_x = cp.x; 
+                    new_x = cp.x; 
                     new_x -= 50; 
                     moveMouse(new_x, cp.y);
                 }
                 // down
                 else if(event.number == 1 && event.value > 0)
                 {
-                    int new_y = cp.y; 
+                    new_y = cp.y; 
                     new_y += 50; 
                     moveMouse(cp.x, new_y);
                 }
                 // up
                 else if(event.number == 1 && event.value < 0)
                 {
-                    int new_y = cp.y; 
+                    new_y = cp.y; 
                     new_y -= 50; 
                     moveMouse(cp.x, new_y);
                 }
@@ -327,8 +267,3 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-// psuedo 
-/*
-    1.) connect to display server
-        - 
-*/
