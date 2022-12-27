@@ -217,8 +217,10 @@ int main(int argc, char *argv[])
     __u8 select_button = 8; 
     __u8 start_button = 9; 
 
+    int is_running = 0; 
+
     /* This loop will exit if the controller is unplugged. */
-    while (read_event(js, &event) == 0)
+    while (read_event(js, &event) == 0 && is_running == 0)
     {
         switch (event.type)
         {
@@ -266,6 +268,8 @@ int main(int argc, char *argv[])
                     {
                         putchar('9');
                         putchar('\n');
+                        // exit program (to avoid memory leak)
+                        is_running = 1;
                     }
                 }
 
@@ -279,24 +283,38 @@ int main(int argc, char *argv[])
                 cp = getCursorPosition();
                 printf("X:%d\nY:%d\n", cp.x, cp.y);
                 printf("----------------------------------\n");
-                if(event.number == 0)
+                printf("Event Number: %d\n", event.number);
+                printf("----------------------------------\n");
+                printf("Event Value: %d\n", event.value);
+                // right
+                if(event.number == 0 && event.value > 0)
+                {
+                    int new_x = cp.x; 
+                    new_x += 50; 
+                    moveMouse(new_x, cp.y);
+                }
+                // left
+                else if(event.number == 0 && event.value < 0)
                 {
                     int new_x = cp.x; 
                     new_x -= 50; 
                     moveMouse(new_x, cp.y);
                 }
-                else if(event.number == 1)
+                // down
+                else if(event.number == 1 && event.value > 0)
                 {
                     int new_y = cp.y; 
                     new_y += 50; 
                     moveMouse(cp.x, new_y);
                 }
-                else if(event.number == 2)
+                // up
+                else if(event.number == 1 && event.value < 0)
                 {
-                    int new_x = cp.x; 
-                    new_x -= 50; 
-                    moveMouse(new_x, cp.y);
+                    int new_y = cp.y; 
+                    new_y -= 50; 
+                    moveMouse(cp.x, new_y);
                 }
+                
             default:
                 /* Ignore init events. */
                 break;
