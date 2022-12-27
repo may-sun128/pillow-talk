@@ -68,7 +68,6 @@ struct cursor_position
     int x, y; 
 };
 
-// working, though not returning cursor position but printing it 
 struct cursor_position getCursorPosition()
 {
 	int number_of_screens;
@@ -114,8 +113,7 @@ struct cursor_position getCursorPosition()
     // return 0;
     return cp; 
 }
-
-// working 
+ 
 void moveMouse(int x, int y)
 {
 	Display *dpy;
@@ -165,13 +163,13 @@ int main(int argc, char *argv[])
 
     int new_x;
     int new_y;
+    int move_interval = 100;
     /* This loop will exit if the controller is unplugged. */
     while (read_event(js, &event) == 0 && is_running == 0)
     {
         switch (event.type)
         {
             case JS_EVENT_BUTTON:
-
                 // if event.value == true, ie if is_pressed 
                 if(event.value) 
                 {
@@ -222,38 +220,31 @@ int main(int argc, char *argv[])
             case JS_EVENT_AXIS:
                 cp = getCursorPosition();
                 // printf("X:%d\nY:%d\n", cp.x, cp.y);
-                // printf("----------------------------------\n");
-                // printf("Event Number: %d\n", event.number);
-                // printf("----------------------------------\n");
-                // printf("Event Value: %d\n", event.value);
+                printf("Time:%d\nValue:%d\nType:%d\nNumber:%d\n----------------------------------\n", event.time, event.value, event.type, event.number);
                 // right
-                if(event.number == 0 && event.value > 0)
-                {
-                    new_x = cp.x; 
-                    new_x += 50; 
-                    moveMouse(new_x, cp.y);
+                while(event.number == 0 && event.value > 0)
+                { 
+                    cp.x += move_interval;
+                    moveMouse(cp.x, cp.y); 
                 }
                 // left
-                else if(event.number == 0 && event.value < 0)
-                {
-                    new_x = cp.x; 
-                    new_x -= 50; 
-                    moveMouse(new_x, cp.y);
-                }
-                // down
-                else if(event.number == 1 && event.value > 0)
-                {
-                    new_y = cp.y; 
-                    new_y += 50; 
-                    moveMouse(cp.x, new_y);
-                }
-                // up
-                else if(event.number == 1 && event.value < 0)
-                {
-                    new_y = cp.y; 
-                    new_y -= 50; 
-                    moveMouse(cp.x, new_y);
-                }
+                // else if(event.number == 0 && event.value < 0)
+                // {
+                //     cp.x -= move_interval;
+                //     moveMouse(cp.x, cp.y); 
+                // }
+                // // down
+                // else if(event.number == 1 && event.value > 0)
+                // {
+                //     cp.y += move_interval;
+                //     moveMouse(cp.x, cp.y);
+                // }
+                // // up
+                // else if(event.number == 1 && event.value < 0)
+                // {
+                //     cp.y -= move_interval;
+                //     moveMouse(cp.x, cp.y);
+                // }
                 
             default:
                 /* Ignore init events. */
