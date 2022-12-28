@@ -14,6 +14,7 @@
  * https://www.kernel.org/doc/Documentation/input/joystick-api.txt
  */
 
+#include <asm-generic/errno-base.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -25,6 +26,9 @@
 #include <assert.h>
 #include <unistd.h>
 #include <malloc.h>
+// #include <unistd.h>
+#include <time.h>
+#include <errno.h>
 
 /*
  * Note: you must link the X library when compiling for this to work 
@@ -114,13 +118,13 @@ struct cursor_position getCursorPosition()
     return cp; 
 }
  
-void moveMouse(int x, int y)
+void moveMouse(int x, int y, Display *dpy, Window root_window)
 {
-	Display *dpy;
-	Window root_window; 
+	// Display *dpy;
+	// Window root_window; 
 
-	dpy = XOpenDisplay(0);
-	root_window = XRootWindow(dpy, 0);
+	// dpy = XOpenDisplay(0);
+	// root_window = XRootWindow(dpy, 0);
 	XSelectInput(dpy, root_window, KeyReleaseMask);
 
 	// XWarpPointer(display, src_w, dest_w, src_x, src_y, src_width, src_height, dest_x, dest_y)
@@ -131,8 +135,24 @@ void moveMouse(int x, int y)
 	XFlush(dpy);
 }
 
-int main(int argc, char *argv[])
+// int checkEvent(struct js_event e)
+// {
+//     printf("CheckEvent event value: %d\n", e.value); 
+//     if(e.value == 0)
+//     {
+//         return 0; 
+//     }
+//     return -1; 
+// }
+
+int _main(int argc, char *argv[])
 {
+    // Originally, these types were local to moveMouse()
+    Display *display;
+    Window root_window; 
+    display = XOpenDisplay(0);
+	root_window = XRootWindow(display, 0);
+    
     struct cursor_position cp; 
     const char *device;
     int js;
@@ -145,7 +165,11 @@ int main(int argc, char *argv[])
     else
         device = "/dev/input/js0";
 
-    js = open(device, O_RDONLY);
+    // original
+    // js = open(device, O_RDONLY);
+
+    // non-blocking
+    js = open(device, O_NONBLOCK); 
 
     if (js == -1)
         perror("Could not open joystick");
@@ -163,10 +187,13 @@ int main(int argc, char *argv[])
 
     int new_x;
     int new_y;
-    int move_interval = 100;
+    int move_interval = 20;
+
     /* This loop will exit if the controller is unplugged. */
+    // Original 
     while (read_event(js, &event) == 0 && is_running == 0)
     {
+        // buttons or axis 
         switch (event.type)
         {
             case JS_EVENT_BUTTON:
@@ -221,40 +248,110 @@ int main(int argc, char *argv[])
                 cp = getCursorPosition();
                 // printf("X:%d\nY:%d\n", cp.x, cp.y);
                 printf("Time:%d\nValue:%d\nType:%d\nNumber:%d\n----------------------------------\n", event.time, event.value, event.type, event.number);
-                // right
-                while(event.number == 0 && event.value > 0)
-                { 
-                    cp.x += move_interval;
-                    moveMouse(cp.x, cp.y); 
-                }
-                // left
-                // else if(event.number == 0 && event.value < 0)
-                // {
-                //     cp.x -= move_interval;
-                //     moveMouse(cp.x, cp.y); 
-                // }
-                // // down
-                // else if(event.number == 1 && event.value > 0)
-                // {
-                //     cp.y += move_interval;
-                //     moveMouse(cp.x, cp.y);
-                // }
-                // // up
-                // else if(event.number == 1 && event.value < 0)
-                // {
-                //     cp.y -= move_interval;
-                //     moveMouse(cp.x, cp.y);
-                // }
                 
+                // x or y axis
+                switch(event.number)
+                {
+                    // x joystick axis 
+                    case(0):
+                    {
+                        // right
+                        if(event.value > 0)
+                        { 
+                            // printf("Time:%d\nValue:%d\nType:%d\nNumber:%d\n----------------------------------\n", event.time, event.value, event.type, event.number);
+                            // printf("%d", event.value);
+                            // useconds_t u = 1000 * 4000;
+                            
+                            cp.x += move_interval;
+                            moveMouse(cp.x, cp.y, display, root_window);
+                            // usleep(u);
+                        }
+                        // left
+                        else if(event.value < 0)
+                        {
+                            cp.x -= move_interval;
+                            moveMouse(cp.x, cp.y, display, root_window); 
+                        }
+                    }
+                    // y joystick axis
+                    case(1):
+                    {
+                        // down
+                        if(event.value > 0)
+                        {
+                            cp.y += move_interval;
+                            moveMouse(cp.x, cp.y, display, root_window);
+                        }
+                        // up
+                        else if(event.value < 0)
+                        {
+                            cp.y -= move_interval;
+                            moveMouse(cp.x, cp.y, display, root_window);
+                        }
+                       
+                    }
+                }
             default:
+                printf("Default Case Event Value: %d\n------------------------------------\n", event.value); 
                 /* Ignore init events. */
                 break;
         }
         
         fflush(stdout);
     }
-
+    
+    printf("Exited while loop");
     close(js);
     return 0;
 }
 
+int main()
+{
+    struct js_event e;
+    int fd = open("/dev/input/js0", O_NONBLOCK);
+    struct js_event current_event; 
+    
+    __u8 x_button = 0;
+    __u8 a_button = 1; 
+    __u8 b_button = 2;
+    __u8 y_button = 3; 
+    __u8 left_trigger = 4; 
+    __u8 right_trigger = 5;
+    __u8 select_button = 8; 
+    __u8 start_button = 9;
+    
+    __u8 is_pressed = 0; 
+    __u8 is_released = 1; 
+
+    int is_running = 1; 
+    while(is_running)
+    {
+        while(read(fd, &e, sizeof(e)) > 0)
+        {
+            current_event = e; 
+            // printf("event time:%d\n", e.time); 
+        }
+        if(errno != EAGAIN)
+        {
+            printf("il y a un problem"); 
+        }
+
+        // THE DESCISION TREE -|--|----|--------&c.
+        if (current_event.type == JS_EVENT_BUTTON)
+        {
+            if (current_event.value == is_pressed)
+            {
+                if(current_event.number == x_button)
+                {
+                    printf("X button was pressed");
+                }
+                if(current_event.value == is_released)
+                {
+                    break; 
+                }
+            }
+        } 
+    }
+    close(fd); 
+    return 0;
+}
