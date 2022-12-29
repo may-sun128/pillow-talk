@@ -426,7 +426,7 @@ int main()
                     case(1):
                     {
                         // down
-                        if(current_event.value > 0)
+                        if(current_event.value > 0 && current_event.number == 1)
                         {
                             // printf("x before=%d\n", cp.x);
                             cp.y += move_interval; 
@@ -443,7 +443,7 @@ int main()
                             }
                         }
                         // up
-                        else if(current_event.value < 0)
+                        else if(current_event.value < 0 && current_event.number == 1)
                         {
                             // printf("x before=%d\n", cp.x);
                             cp.y -= move_interval; 
@@ -458,8 +458,7 @@ int main()
                                 printf("Breaking from x axis\n"); 
                                 break; 
                             }
-                        }
-                       
+                        }  
                     }
                 }
         }
