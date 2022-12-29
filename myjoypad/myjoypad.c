@@ -366,7 +366,69 @@ int main()
             {
                 if(current_event.number == x_button)
                 {
-                    printf("X button was pressed\n");
+                    // printf("X button was pressed\n");
+                    putchar('0');
+                    putchar('\n');
+                    if(current_event.value == is_released)
+                    {
+                        break; 
+                    }
+                }
+                if(current_event.number == y_button)
+                {
+                    // printf("Y button was pressed\n");
+                    putchar('3');
+                    putchar('\n');
+                    if(current_event.value == is_released)
+                    {
+                        break; 
+                    }
+                }
+                if(current_event.number == a_button)
+                {
+                    // printf("A button was pressed\n");
+                    putchar('1');
+                    putchar('\n');
+                    if(current_event.value == is_released)
+                    {
+                        break; 
+                    }
+                }
+                if(current_event.number == b_button)
+                {
+                    // printf("B button was pressed\n");
+                    putchar('2');
+                    putchar('\n');
+                    if(current_event.value == is_released)
+                    {
+                        break; 
+                    }
+                }
+                if(current_event.number == right_trigger)
+                {
+                    // printf("R button was pressed\n");
+                    putchar('5');
+                    putchar('\n');
+                    if(current_event.value == is_released)
+                    {
+                        break; 
+                    }
+                }
+                if(current_event.number == left_trigger)
+                {
+                    // printf("LT button was pressed\n");
+                    putchar('4');
+                    putchar('\n');
+                    if(current_event.value == is_released)
+                    {
+                        break; 
+                    }
+                }
+                if(current_event.number == select_button)
+                {
+                    // printf("Select button was pressed\n");
+                    putchar('8');
+                    putchar('\n');
                     if(current_event.value == is_released)
                     {
                         break; 

@@ -83,7 +83,7 @@ volume = int(execute_bash('awk -F"[][]" \'/Left:/ { print $2 }\' <(amixer sget M
 ### User-Defined Functions ### 
 
 def x_pressed():
-    print('x button clicked')
+    # print('x button clicked')
     mode = get_mode()
     if mode == 'desktop':
         pyautogui.hotkey('winleft', 'w')
@@ -92,15 +92,16 @@ def x_pressed():
         print('crtl+w was pressed?')
 
 def b_pressed():
-    print('b button clicked')
-    pyautogui.click(button='left')
+    # print('b button clicked')
+    pyautogui.click()
+    # print('pyauthogui clicked')
 
 def y_pressed():
-    print('y button clicked')
+    # print('y button clicked')
     handle_virtual_keyboard()
 
 def a_pressed():
-    print('a button clicked')
+    # print('a button clicked')
     pyautogui.click(button='right')
 
 def start_pressed():
@@ -158,44 +159,59 @@ def lt_pressed():
 
 ### STDOUT ### 
 
+def event_equals_previous(event_value):
+    l = [-1, -1]
+    if l[0] == -1:
+        l[0] = event_value
+    elif l[0] != -1:
+        l[1] = l[0]
+        l[0] = event_value
+        
+    print(f'l[0] = {l[0]}')
+    print(f'l[1] = {l[1]}')
+    print('-----------------------')
+
+
 def read_stdout(joystick):
     command = 'myjoypad/./a.out'
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
-    count = 0
+    init = 10
     while True:
-        count += 1
-        print(count)
         output = process.stdout.readline()
-        if output == '' and process.poll() is not None:
-            break
-        # X Button
-        elif output.decode().strip() == '0':
-            joystick.x_button_pressed()
-        # A Button
-        elif output.decode().strip() == '1':
-            joystick.a_button_pressed()
-        # B Button
-        elif output.decode().strip() == '2':
-            joystick.b_button_pressed()
-        # Y Button
-        elif output.decode().strip() == '3':
-            joystick.y_button_pressed()
-        # Left Trigger
-        elif output.decode().strip() == '4':
-            joystick.left_trigger_pressed()
-        # Right Trigger
-        elif output.decode().strip() == '5':
-            joystick.right_trigger_pressed()
-        # Select Button
-        elif output.decode().strip() == '8':
-            joystick.select_button_pressed()
-        # Start Button
-        elif output.decode().strip() == '9':
-            joystick.start_button_pressed()
+        # print(output.decode().strip())
+        # if output is different from the previous output
+        if output.decode().strip() == init:
+            if output == '' and process.poll() is not None:
+                break
+            # X Button
+            elif output.decode().strip() == '0':
+                joystick.x_button_pressed()
+            # A Button
+            elif output.decode().strip() == '1':
+                joystick.a_button_pressed()
+            # B Button
+            elif output.decode().strip() == '2':
+                joystick.b_button_pressed()
+            # Y Button
+            elif output.decode().strip() == '3':
+                joystick.y_button_pressed()
+            # Left Trigger
+            elif output.decode().strip() == '4':
+                joystick.left_trigger_pressed()
+            # Right Trigger
+            elif output.decode().strip() == '5':
+                joystick.right_trigger_pressed()
+            # Select Button
+            elif output.decode().strip() == '8':
+                joystick.select_button_pressed()
+            # Start Button
+            elif output.decode().strip() == '9':
+                joystick.start_button_pressed()
+            else:
+                print(output.decode().strip())
+                break
         else:
-            print('stdin not button code')
-            break
-            
+            print('did not enter for loop')
     rc = process.poll()
     return rc
 
@@ -215,5 +231,9 @@ def main():
     
     # read stdin/out from myjoypad.c 
     read_stdout(js)
+
+    # for i in range(10):
+    #     event_equals_previous(i)
+
 
 main()
