@@ -159,59 +159,70 @@ def lt_pressed():
 
 ### STDOUT ### 
 
-def event_equals_previous(event_value):
-    l = [-1, -1]
-    if l[0] == -1:
-        l[0] = event_value
-    elif l[0] != -1:
-        l[1] = l[0]
-        l[0] = event_value
+# def event_equals_previous(event_value):
+#     l = [-1, -1]
+#     if l[0] == -1:
+#         l[0] = event_value
+#     elif l[0] != -1:
+#         l[1] = l[0]
+#         l[0] = event_value
         
-    print(f'l[0] = {l[0]}')
-    print(f'l[1] = {l[1]}')
-    print('-----------------------')
+#     print(f'l[0] = {l[0]}')
+#     print(f'l[1] = {l[1]}')
+#     print('-----------------------')
 
+def swap(buffer):
+    temp = buffer[0]
+    buffer[0] = buffer[1]
+    buffer[1] = temp
+    # return buffer
+
+def get_new_buffer(event):
+    if buffer[0] == None:
+        buffer[0] = event
+    elif (buffer[0] != None) and (buffer[1] == None):
+        buffer[1] = event
+    elif (buffer[0] != None) and buffer[1] != None:
+        swap(buffer)
+        buffer[0] = event
+    print(buffer)
+    time.sleep(1)
 
 def read_stdout(joystick):
     command = 'myjoypad/./a.out'
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
-    init = 10
     while True:
         output = process.stdout.readline()
-        # print(output.decode().strip())
-        # if output is different from the previous output
-        if output.decode().strip() == init:
-            if output == '' and process.poll() is not None:
-                break
-            # X Button
-            elif output.decode().strip() == '0':
-                joystick.x_button_pressed()
-            # A Button
-            elif output.decode().strip() == '1':
-                joystick.a_button_pressed()
-            # B Button
-            elif output.decode().strip() == '2':
-                joystick.b_button_pressed()
-            # Y Button
-            elif output.decode().strip() == '3':
-                joystick.y_button_pressed()
-            # Left Trigger
-            elif output.decode().strip() == '4':
-                joystick.left_trigger_pressed()
-            # Right Trigger
-            elif output.decode().strip() == '5':
-                joystick.right_trigger_pressed()
-            # Select Button
-            elif output.decode().strip() == '8':
-                joystick.select_button_pressed()
-            # Start Button
-            elif output.decode().strip() == '9':
-                joystick.start_button_pressed()
-            else:
-                print(output.decode().strip())
-                break
+        print(output.decode().strip())
+        if output == '' and process.poll() is not None:
+            break
+        # X Button
+        elif output.decode().strip() == '0':
+            joystick.x_button_pressed()
+        # A Button
+        elif output.decode().strip() == '1':
+            joystick.a_button_pressed()
+        # B Button
+        elif output.decode().strip() == '2':
+            joystick.b_button_pressed()
+        # Y Button
+        elif output.decode().strip() == '3':
+            joystick.y_button_pressed()
+        # Left Trigger
+        elif output.decode().strip() == '4':
+            joystick.left_trigger_pressed()
+        # Right Trigger
+        elif output.decode().strip() == '5':
+            joystick.right_trigger_pressed()
+        # Select Button
+        elif output.decode().strip() == '8':
+            joystick.select_button_pressed()
+        # Start Button
+        elif output.decode().strip() == '9':
+            joystick.start_button_pressed()
         else:
-            print('did not enter for loop')
+            print(output.decode().strip())
+            break
     rc = process.poll()
     return rc
 
