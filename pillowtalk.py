@@ -159,18 +159,6 @@ def lt_pressed():
 
 ### STDOUT ### 
 
-# def event_equals_previous(event_value):
-#     l = [-1, -1]
-#     if l[0] == -1:
-#         l[0] = event_value
-#     elif l[0] != -1:
-#         l[1] = l[0]
-#         l[0] = event_value
-        
-#     print(f'l[0] = {l[0]}')
-#     print(f'l[1] = {l[1]}')
-#     print('-----------------------')
-
 def swap(buffer):
     temp = buffer[0]
     buffer[0] = buffer[1]
@@ -240,11 +228,8 @@ def main():
     js.right_trigger_pressed = rt_pressed
     js.left_trigger_pressed = lt_pressed
     
-    # read stdin/out from myjoypad.c 
+    # read stdin/out from myjoypad.c
+    # if using myjoypad, run this function 
     read_stdout(js)
-
-    # for i in range(10):
-    #     event_equals_previous(i)
-
 
 main()
