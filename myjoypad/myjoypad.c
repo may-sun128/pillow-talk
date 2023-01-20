@@ -1,19 +1,3 @@
-/**
- * Author: Jason White
- *
- * Description:
- * Reads joystick/gamepad events and displays them.
- *
- * Compile:
- * gcc joystick.c -o joystick
- *
- * Run:
- * ./joystick [/dev/input/jsX]
- *
- * See also:
- * https://www.kernel.org/doc/Documentation/input/joystick-api.txt
- */
-
 #include <asm-generic/errno-base.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -146,6 +130,12 @@ void printEventInfo(struct js_event e)
     printf("Time:%d\nValue:%d\nType:%d\nNumber:%d\n----------------------------------\n", e.time, e.value, e.type, e.number);
 }
 
+void processEvent(struct js_event e)
+{
+    struct js_event buf[2]; 
+    buf[0] = e;
+}
+
 int main()
 {
     // event struct, contains the following: 
@@ -209,8 +199,7 @@ int main()
         // read event queau
         while(read(fd, &e, sizeof(e)) > 0)
         {
-            current_event = e; 
-            // printf("event time:%d\n", e.time); 
+            current_event = e;  
         }
         if(errno != EAGAIN)
         {
@@ -227,71 +216,71 @@ int main()
                 {
                     // printf("X button was pressed\n");
                     putchar('0');
-                    putchar('\n');
-                    if(current_event.value == is_released)
-                    {
-                        break; 
-                    }
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
                 }
                 if(current_event.number == y_button)
                 {
                     // printf("Y button was pressed\n");
                     putchar('3');
-                    putchar('\n');
-                    if(current_event.value == is_released)
-                    {
-                        break; 
-                    }
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
                 }
                 if(current_event.number == a_button)
                 {
                     // printf("A button was pressed\n");
                     putchar('1');
-                    putchar('\n');
-                    if(current_event.value == is_released)
-                    {
-                        break; 
-                    }
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
                 }
                 if(current_event.number == b_button)
                 {
                     // printf("B button was pressed\n");
                     putchar('2');
-                    putchar('\n');
-                    if(current_event.value == is_released)
-                    {
-                        break; 
-                    }
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
                 }
                 if(current_event.number == right_trigger)
                 {
                     // printf("R button was pressed\n");
                     putchar('5');
-                    putchar('\n');
-                    if(current_event.value == is_released)
-                    {
-                        break; 
-                    }
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
                 }
                 if(current_event.number == left_trigger)
                 {
                     // printf("LT button was pressed\n");
                     putchar('4');
-                    putchar('\n');
-                    if(current_event.value == is_released)
-                    {
-                        break; 
-                    }
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
                 }
                 if(current_event.number == select_button)
                 {
                     // printf("Select button was pressed\n");
                     putchar('8');
-                    putchar('\n');
-                    if(current_event.value == is_released)
-                    {
-                        break; 
-                    }
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
                 }
                 else if(current_event.number == start_button)
                 {
