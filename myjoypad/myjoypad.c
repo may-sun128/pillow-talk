@@ -120,19 +120,14 @@ struct cursor_position getCursorPosition()
  
 void moveMouse(int x, int y, Display *dpy, Window root_window)
 {
-	// Display *dpy;
-	// Window root_window; 
-
-	// dpy = XOpenDisplay(0);
-	// root_window = XRootWindow(dpy, 0);
-	XSelectInput(dpy, root_window, KeyReleaseMask);
-
-	// XWarpPointer(display, src_w, dest_w, src_x, src_y, src_width, src_height, dest_x, dest_y)
-
-	// top left
-	XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, x, y);
-
-	XFlush(dpy);
+	// Request that the xserver report events associated with the specific event mask 
+    // Initially, X will not report any of these events. ; 
+    XSelectInput(dpy, root_window, KeyReleaseMask);
+	// Move the cursor 
+    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, x, y);
+	// flush the output buffer 
+    //      not sure if this event should happen here or in main 
+    XFlush(dpy);
 }
 
 // int checkEvent(struct js_event e)
@@ -312,13 +307,30 @@ int _main(int argc, char *argv[])
 
 int main()
 {
+    // event struct, contains the following: 
+    // __u32 time  - event timestamp in miliseconds 
+    // __s16 value - value 
+    // __u8 type   - event type 
+    // __u8 number - axis/button number 
     struct js_event e;
+    // open js0 in non-blocking mode 
+    // I suspect the non-blocking aspect is why 100% of CPU is used 
     int fd = open("/dev/input/js0", O_NONBLOCK);
-    struct js_event current_event; 
+    
+    struct js_event current_event;
 
     // copied from old main
+
+    // x11 display struct 
+    // Looks like it contains:
+    // hostname - the hostname of the machine in which the display is physically attached 
+    // number   - the number of the display server on the host machine (starting w/ 0)
+    // screen_number - specifies the the screen to be used on that server
+    //                 multiple screens can be controlled by a single X server 
     Display *display;
+    // TODO: research Window struct 
     Window root_window; 
+    // open with default display server (0)
     display = XOpenDisplay(0);
 	root_window = XRootWindow(display, 0);
     
@@ -326,6 +338,8 @@ int main()
     // cp = getCursorPosition(); 
     // const char *device;
     
+    // TODO make these constants 
+    // These are just here to make the code more readible in the decision logic 
     __u8 x_button = 0;
     __u8 a_button = 1; 
     __u8 b_button = 2;
@@ -338,16 +352,20 @@ int main()
     __u8 is_pressed = 1; 
     __u8 is_released = 0; 
 
+    // values of cursor new coordinates
     int new_x;
     int new_y;
+    // how many pixels the mouse moves at one time 
     int move_interval = 10; // pixels
 
+    // The delay the cursor movement 
     // 1000 * 1000 = 1 second
     useconds_t u = 1000 * 50;
 
     int is_running = 1; 
     while(is_running)
     {
+        // read event queau
         while(read(fd, &e, sizeof(e)) > 0)
         {
             current_event = e; 
@@ -355,10 +373,10 @@ int main()
         }
         if(errno != EAGAIN)
         {
-            printf("il y a un problem"); 
+            printf("Read error occured."); 
         }
 
-        // THE DESCISION TREE -|--|----|--------&c.
+        // THE DESCISION TREE
         // TODO convert this to switch 
         if (current_event.type == JS_EVENT_BUTTON)
         {
