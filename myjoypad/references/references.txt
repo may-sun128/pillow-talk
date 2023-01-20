@@ -7,3 +7,8 @@ https://www.kernel.org/doc/Documentation/input/joystick-api.txt
 
 Library Linking
 https://stackoverflow.com/questions/2433447/how-to-set-mouse-cursor-position-in-c-on-linux
+
+
+NOTES
+
+to compile run `gcc text.cpp -lX11 -o t`

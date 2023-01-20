@@ -130,10 +130,21 @@ void printEventInfo(struct js_event e)
     printf("Time:%d\nValue:%d\nType:%d\nNumber:%d\n----------------------------------\n", e.time, e.value, e.type, e.number);
 }
 
-void processEvent(struct js_event e)
+void read_buffer()
 {
-    struct js_event buf[2]; 
-    buf[0] = e;
+    // Buffer Stuff
+    int fd = open("/dev/input/js0", O_NONBLOCK); 
+    struct js_event my_buffer[0xff]; // 255
+    useconds_t one_second = 1000 * 1000;
+    while(read(fd, my_buffer, sizeof(my_buffer)))
+    {
+        printEventInfo(my_buffer[0]);
+        usleep(one_second); 
+        if (my_buffer[0].number == my_buffer[1].number) 
+        {
+            printf("Event value is the same as the previous event.\n"); 
+        }
+    } 
 }
 
 int main()
@@ -193,7 +204,12 @@ int main()
     // 1000 * 1000 = 1 second
     useconds_t u = 1000 * 50;
 
-    int is_running = 1; 
+    // test buffer stuff
+    read_buffer(); 
+
+    // temporarily changed to 0 
+    // TODO change back 
+    int is_running = 0; 
     while(is_running)
     {
         // read event queau
@@ -204,8 +220,8 @@ int main()
         if(errno != EAGAIN)
         {
             printf("Read error occured."); 
-        }
-
+        } 
+        
         // THE DESCISION TREE
         // TODO convert this to switch 
         if (current_event.type == JS_EVENT_BUTTON)
@@ -217,70 +233,42 @@ int main()
                     // printf("X button was pressed\n");
                     putchar('0');
                     // putchar('\n');
-                    // if(current_event.value == is_released)
-                    // {
-                    //     break; 
-                    // }
                 }
                 if(current_event.number == y_button)
                 {
                     // printf("Y button was pressed\n");
                     putchar('3');
                     // putchar('\n');
-                    // if(current_event.value == is_released)
-                    // {
-                    //     break; 
-                    // }
                 }
                 if(current_event.number == a_button)
                 {
                     // printf("A button was pressed\n");
                     putchar('1');
                     // putchar('\n');
-                    // if(current_event.value == is_released)
-                    // {
-                    //     break; 
-                    // }
                 }
                 if(current_event.number == b_button)
                 {
                     // printf("B button was pressed\n");
                     putchar('2');
                     // putchar('\n');
-                    // if(current_event.value == is_released)
-                    // {
-                    //     break; 
-                    // }
                 }
                 if(current_event.number == right_trigger)
                 {
                     // printf("R button was pressed\n");
                     putchar('5');
                     // putchar('\n');
-                    // if(current_event.value == is_released)
-                    // {
-                    //     break; 
-                    // }
                 }
                 if(current_event.number == left_trigger)
                 {
                     // printf("LT button was pressed\n");
                     putchar('4');
                     // putchar('\n');
-                    // if(current_event.value == is_released)
-                    // {
-                    //     break; 
-                    // }
                 }
                 if(current_event.number == select_button)
                 {
                     // printf("Select button was pressed\n");
                     putchar('8');
                     // putchar('\n');
-                    // if(current_event.value == is_released)
-                    // {
-                    //     break; 
-                    // }
                 }
                 else if(current_event.number == start_button)
                 {
