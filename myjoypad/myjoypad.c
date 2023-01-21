@@ -136,8 +136,10 @@ void read_buffer()
     int fd = open("/dev/input/js0", O_NONBLOCK); 
     struct js_event my_buffer[0xff]; // 255
     useconds_t one_second = 1000 * 1000;
-    while(read(fd, my_buffer, sizeof(my_buffer)))
+    int r; 
+    while((r = read(fd, my_buffer, sizeof(my_buffer))) > 0)
     {
+        
         printEventInfo(my_buffer[0]);
         usleep(one_second); 
         if (my_buffer[0].number == my_buffer[1].number) 
@@ -145,6 +147,7 @@ void read_buffer()
             printf("Event value is the same as the previous event.\n"); 
         }
     } 
+    printf("Exited due to r being less than 0\n"); 
 }
 
 int main()
