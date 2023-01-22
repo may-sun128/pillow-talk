@@ -14,17 +14,24 @@
 #include <time.h>
 #include <errno.h>
 
+#define X_BUTTON 0
+#define A_BUTTON 1
+#define B_BUTTON 2
+#define Y_BUTTON 3
+#define LEFT_TRIGGER 4
+#define RIGHT_TRIGGER 5
+#define SELECT_BUTTON 8
+#define START_BUTTON 9
+
+#define IS_PRESSED 1
+#define IS_RELEASED 0
+
 /*
  * Note: you must link the X library when compiling for this to work 
  * `gcc <program-name>.c -lX11`
  * https://stackoverflow.com/questions/2433447/how-to-set-mouse-cursor-position-in-c-on-linux
 */
 
-/**
- * Reads a joystick event from the joystick device.
- *
- * Returns 0 on success. Otherwise -1 is returned.
- */
 int read_event(int fd, struct js_event *event)
 {
     ssize_t bytes;
@@ -37,19 +44,6 @@ int read_event(int fd, struct js_event *event)
     /* Error, could not read full event. */
     return -1;
 }
-
-/**
- * Current state of an axis.
- */
-struct axis_state {
-    short x, y;
-};
-
-// static int _XlibErrorHandler(Display *display, XErrorEvent *event)
-// {
-// 	fprintf(stderr, "An error occured detecting the mouse position\n");
-//     return True;
-// }
 
 struct cursor_position
 {
@@ -132,6 +126,10 @@ void printEventInfo(struct js_event e)
 
 void processEvent(struct js_event current_event)
 {
+    // printf("----------------------------------Process Event Enter--------------------------------------------\n");
+    // printf("Entered the process event method\n");
+    // printEventInfo(current_event); 
+    // printf("----------------------------------Process Event Exit--------------------------------------------\n");
     // x11 display struct 
     // Looks like it contains:
     // hostname - the hostname of the machine in which the display is physically attached 
@@ -179,49 +177,50 @@ void processEvent(struct js_event current_event)
             {
                 if(current_event.number == x_button)
                 {
-                    // printf("X button was pressed\n");
-                    putchar('0');
+                    printf("X button was pressed\n");
+                    // putchar('0');
                     // putchar('\n');
                 }
                 if(current_event.number == y_button)
                 {
-                    // printf("Y button was pressed\n");
-                    putchar('3');
+                    printf("Y button was pressed\n");
+                    // putchar('3');
                     // putchar('\n');
                 }
                 if(current_event.number == a_button)
                 {
-                    // printf("A button was pressed\n");
-                    putchar('1');
+                    printf("A button was pressed\n");
+                    // putchar('1');
                     // putchar('\n');
                 }
                 if(current_event.number == b_button)
                 {
-                    // printf("B button was pressed\n");
-                    putchar('2');
+                    printf("B button was pressed\n");
+                    // putchar('2');
                     // putchar('\n');
                 }
                 if(current_event.number == right_trigger)
                 {
-                    // printf("R button was pressed\n");
-                    putchar('5');
+                    printf("R button was pressed\n");
+                    // putchar('5');
                     // putchar('\n');
                 }
                 if(current_event.number == left_trigger)
                 {
-                    // printf("LT button was pressed\n");
-                    putchar('4');
+                    printf("LT button was pressed\n");
+                    // putchar('4');
                     // putchar('\n');
                 }
                 if(current_event.number == select_button)
                 {
-                    // printf("Select button was pressed\n");
-                    putchar('8');
+                    printf("Select button was pressed\n");
+                    // putchar('8');
                     // putchar('\n');
                 }
                 else if(current_event.number == start_button)
                 {
-                    // this is not applicable outside of main() 
+                    // this is not applicable outside of main()
+                    // TODO rewrite some kind of exit condition though  
                     int is_running = 0; 
                 }
             }
@@ -312,6 +311,15 @@ void processEvent(struct js_event current_event)
     }
 }
 
+int isSameEvent(struct js_event first, struct js_event second)
+{
+    if((first.number == second.number) && (first.type == second.type) && (first.value == second.value))
+    {
+        return 1; 
+    }
+    return 0; 
+}
+
 void readBuffer()
 {
     // Buffer Stuff
@@ -329,16 +337,22 @@ void readBuffer()
     {
         
         // get info about first buffer struct 
-        printEventInfo(my_buffer[0]);
+        // printEventInfo(my_buffer[0]);
         // wait 
         usleep(one_second); 
-        if (my_buffer[0].number == my_buffer[1].number) 
+        //// change number to value??
+        if (isSameEvent(my_buffer[0], my_buffer[1])) 
         {
-            printf("Event value is the same as the previous event.\n"); 
+            // printf("Event value is the same as the previous event.\n"); 
+        }
+        // JS_EVENT_INIT == 129 == 0x81
+        else if (my_buffer[0].type == 129) 
+        {
+            // printf("JS init event\n"); 
         }
         else
         {
-            printf("???UNIQUE VALUE???\n"); 
+            printf("UNIQUE VALUE?\n"); 
             processEvent(my_buffer[0]); 
         }
     } 
