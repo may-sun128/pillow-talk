@@ -1,0 +1,9 @@
+X Event Masks
+https://tronche.com/gui/x/xlib/events/mask.html
+
+joystick.h 
+https://opencoursehub.cs.sfu.ca/bfraser/grav-cms/cmpt433/links/files/2022-student-howtos/LinuxJoystick.hLibrary.pdf
+https://www.kernel.org/doc/Documentation/input/joystick-api.txt
+
+Library Linking
+https://stackoverflow.com/questions/2433447/how-to-set-mouse-cursor-position-in-c-on-linux

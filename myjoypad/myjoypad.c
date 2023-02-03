@@ -1,23 +1,24 @@
-/**
- * Author: Jason White
- *
- * Description:
- * Reads joystick/gamepad events and displays them.
- *
- * Compile:
- * gcc joystick.c -o joystick
- *
- * Run:
- * ./joystick [/dev/input/jsX]
- *
- * See also:
- * https://www.kernel.org/doc/Documentation/input/joystick-api.txt
- */
+#include <asm-generic/errno-base.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <linux/joystick.h>
+#include <stdlib.h> 
+#include <X11/X.h> 
+#include <X11/Xlib.h> 
+#include <X11/Xutil.h> 
+#include <assert.h>
+#include <unistd.h>
+#include <malloc.h>
+// #include <unistd.h>
+#include <time.h>
+#include <errno.h>
 
+/*
+ * Note: you must link the X library when compiling for this to work 
+ * `gcc <program-name>.c -lX11`
+ * https://stackoverflow.com/questions/2433447/how-to-set-mouse-cursor-position-in-c-on-linux
+*/
 
 /**
  * Reads a joystick event from the joystick device.
@@ -38,100 +39,340 @@ int read_event(int fd, struct js_event *event)
 }
 
 /**
- * Returns the number of axes on the controller or 0 if an error occurs.
- */
-size_t get_axis_count(int fd)
-{
-    __u8 axes;
-
-    if (ioctl(fd, JSIOCGAXES, &axes) == -1)
-        return 0;
-
-    return axes;
-}
-
-/**
- * Returns the number of buttons on the controller or 0 if an error occurs.
- */
-size_t get_button_count(int fd)
-{
-    __u8 buttons;
-    if (ioctl(fd, JSIOCGBUTTONS, &buttons) == -1)
-        return 0;
-
-    return buttons;
-}
-
-/**
  * Current state of an axis.
  */
 struct axis_state {
     short x, y;
 };
 
-/**
- * Keeps track of the current axis state.
- *
- * NOTE: This function assumes that axes are numbered starting from 0, and that
- * the X axis is an even number, and the Y axis is an odd number. However, this
- * is usually a safe assumption.
- *
- * Returns the axis that the event indicated.
- */
-size_t get_axis_state(struct js_event *event, struct axis_state axes[3])
+// static int _XlibErrorHandler(Display *display, XErrorEvent *event)
+// {
+// 	fprintf(stderr, "An error occured detecting the mouse position\n");
+//     return True;
+// }
+
+struct cursor_position
 {
-    size_t axis = event->number / 2;
+    int x, y; 
+};
 
-    if (axis < 3)
-    {
-        if (event->number % 2 == 0)
-            axes[axis].x = event->value;
-        else
-            axes[axis].y = event->value;
-    }
+struct cursor_position getCursorPosition(Display *display, Window root_window)
+{
+	int number_of_screens;
+    int i;
+    Bool result;
+    Window *root_windows;
+    Window window_returned;
+    int root_x, root_y;
+    int win_x, win_y;
+    unsigned int mask_return;
 
-    return axis;
+    //// added to parameters 
+    //// Display *display = XOpenDisplay(NULL);
+    //// not sure what this does; error handling? 
+    //// assert(display);
+
+    //// XSetErrorHandler(_XlibErrorHandler);
+    number_of_screens = XScreenCount(display);
+    //// fprintf(stderr, "There are %d screens available in this X session\n", number_of_screens);
+    
+    //// passing in root window in as argument
+    //// root_windows = malloc(sizeof(Window) * number_of_screens);
+    
+    //// Do I really need number of screens? Let's find out 
+    // for (i = 0; i < number_of_screens; i++) {
+    //     root_windows[i] = XRootWindow(display, i);
+    // }
+    // for (i = 0; i < number_of_screens; i++) {
+    //     result = XQueryPointer(display, root_windows[i], &window_returned,
+    //             &window_returned, &root_x, &root_y, &win_x, &win_y,
+    //             &mask_return);
+    //     if (result == True) {
+    //         break;
+    //     }
+    // }
+    // if (result != True) {
+    //     fprintf(stderr, "No mouse found.\n");
+    //     // return -1;
+    // }
+    // printf("Mouse is at (%d,%d)\n", root_x, root_y);
+    
+    // definition 
+    // Bool  XQueryPointer(display, w,           root_return,      child_return,     root_x_return, root_y_return, win_x_return, win_y_return, mask_return)
+    result = XQueryPointer(display, root_window, &window_returned, &window_returned, &root_x,       &root_y,       &win_x,       &win_y,       &mask_return);
+
+    struct cursor_position cp;
+    cp.x = root_x;
+    cp.y = root_y; 
+    
+    //// free(root_windows);
+    //// No need to close display 
+    //// XCloseDisplay(display);
+    //// returning coords instead of status code 
+    // return 0;
+    return cp; 
+}
+ 
+void moveMouse(int x, int y, Display *dpy, Window root_window)
+{
+	// Request that the xserver report events associated with the specific event mask 
+    // Initially, X will not report any of these events. ; 
+    XSelectInput(dpy, root_window, KeyReleaseMask);
+	// Move the cursor 
+    XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, x, y);
+	// flush the output buffer 
+    // not sure if this event should happen here or in main 
+    XFlush(dpy);
 }
 
-int main(int argc, char *argv[])
+void printEventInfo(struct js_event e)
 {
-    const char *device;
-    int js;
-    struct js_event event;
-    struct axis_state axes[3] = {0};
-    size_t axis;
+    printf("Time:%d\nValue:%d\nType:%d\nNumber:%d\n----------------------------------\n", e.time, e.value, e.type, e.number);
+}
 
-    if (argc > 1)
-        device = argv[1];
-    else
-        device = "/dev/input/js0";
+void processEvent(struct js_event e)
+{
+    struct js_event buf[2]; 
+    buf[0] = e;
+}
 
-    js = open(device, O_RDONLY);
+int main()
+{
+    // event struct, contains the following: 
+    // __u32 time  - event timestamp in miliseconds 
+    // __s16 value - value 
+    // __u8 type   - event type 
+    // __u8 number - axis/button number 
+    struct js_event e;
+    // open js0 in non-blocking mode 
+    // I suspect the non-blocking aspect is why 100% of CPU is used 
+    int fd = open("/dev/input/js0", O_NONBLOCK);
+    
+    struct js_event current_event;
 
-    if (js == -1)
-        perror("Could not open joystick");
+    // copied from old main
 
-    /* This loop will exit if the controller is unplugged. */
-    while (read_event(js, &event) == 0)
+    // x11 display struct 
+    // Looks like it contains:
+    // hostname - the hostname of the machine in which the display is physically attached 
+    // number   - the number of the display server on the host machine (starting w/ 0)
+    // screen_number - specifies the the screen to be used on that server
+    //                 multiple screens can be controlled by a single X server 
+    Display *display;
+    // TODO: research Window struct 
+    Window root_window; 
+    // open with default display server (0)
+    display = XOpenDisplay(0);
+	root_window = XRootWindow(display, 0);
+    
+    struct cursor_position cp;
+    // cp = getCursorPosition(); 
+    // const char *device;
+    
+    // TODO make these constants 
+    // These are just here to make the code more readible in the decision logic 
+    __u8 x_button = 0;
+    __u8 a_button = 1; 
+    __u8 b_button = 2;
+    __u8 y_button = 3; 
+    __u8 left_trigger = 4; 
+    __u8 right_trigger = 5;
+    __u8 select_button = 8; 
+    __u8 start_button = 9;
+    
+    __u8 is_pressed = 1; 
+    __u8 is_released = 0; 
+
+    // values of cursor new coordinates
+    int new_x;
+    int new_y;
+    // how many pixels the mouse moves at one time 
+    int move_interval = 10; // pixels
+
+    // The delay the cursor movement 
+    // 1000 * 1000 = 1 second
+    useconds_t u = 1000 * 50;
+
+    int is_running = 1; 
+    while(is_running)
     {
-        switch (event.type)
+        // read event queau
+        while(read(fd, &e, sizeof(e)) > 0)
         {
-            case JS_EVENT_BUTTON:
-                printf("Button %u %s\n", event.number, event.value ? "pressed" : "released");
-                break;
-            case JS_EVENT_AXIS:
-                axis = get_axis_state(&event, axes);
-                if (axis < 3)
-                    printf("Axis %zu at (%6d, %6d)\n", axis, axes[axis].x, axes[axis].y);
-                break;
-            default:
-                /* Ignore init events. */
-                break;
+            current_event = e;  
         }
-        
-        fflush(stdout);
-    }
+        if(errno != EAGAIN)
+        {
+            printf("Read error occured."); 
+        }
 
-    close(js);
+        // THE DESCISION TREE
+        // TODO convert this to switch 
+        if (current_event.type == JS_EVENT_BUTTON)
+        {
+            if (current_event.value == is_pressed)
+            {
+                if(current_event.number == x_button)
+                {
+                    // printf("X button was pressed\n");
+                    putchar('0');
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
+                }
+                if(current_event.number == y_button)
+                {
+                    // printf("Y button was pressed\n");
+                    putchar('3');
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
+                }
+                if(current_event.number == a_button)
+                {
+                    // printf("A button was pressed\n");
+                    putchar('1');
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
+                }
+                if(current_event.number == b_button)
+                {
+                    // printf("B button was pressed\n");
+                    putchar('2');
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
+                }
+                if(current_event.number == right_trigger)
+                {
+                    // printf("R button was pressed\n");
+                    putchar('5');
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
+                }
+                if(current_event.number == left_trigger)
+                {
+                    // printf("LT button was pressed\n");
+                    putchar('4');
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
+                }
+                if(current_event.number == select_button)
+                {
+                    // printf("Select button was pressed\n");
+                    putchar('8');
+                    // putchar('\n');
+                    // if(current_event.value == is_released)
+                    // {
+                    //     break; 
+                    // }
+                }
+                else if(current_event.number == start_button)
+                {
+                    is_running = 0; 
+                }
+            }
+        } 
+        else if(current_event.type == JS_EVENT_AXIS)
+        {
+            switch(current_event.number)
+                {
+                    // x joystick axis  
+                    case(0):
+                    {
+                        cp = getCursorPosition(display, root_window);
+                        // usleep(u); 
+                        // printf("Position before manipulating x/y: %d, %d\n", cp.x, cp.y); 
+                        if(current_event.value > 0)
+                        {                             
+                            // printf("x before=%d\n", cp.x);
+                            cp.x += move_interval; 
+                            // printf("x after=%d\n", cp.x);
+                            moveMouse(cp.x, cp.y, display, root_window);
+                            // printf("right axis positive triggered\n");
+                        
+                            usleep(u);
+                            
+                            if(current_event.value == is_released){
+                                // Am I ever even entering this condition?
+                                printf("Breaking from x axis\n"); 
+                                break; 
+                            }
+                        }
+                        // left
+                        else if(current_event.value < 0)
+                        {
+                            // printf("x before=%d\n", cp.x);
+                            cp.x -= move_interval; 
+                            // printf("x after=%d\n", cp.x);
+                            moveMouse(cp.x, cp.y, display, root_window);
+                            // printf("right axis positive triggered\n");
+                        
+                            usleep(u);
+                            
+                            if(current_event.value == is_released){
+                                // Am I ever even entering this condition?
+                                printf("Breaking from x axis\n"); 
+                                break; 
+                            }
+                        }
+                    }
+                    // y joystick axis
+                    case(1):
+                    {
+                        // down
+                        if(current_event.value > 0 && current_event.number == 1)
+                        {
+                            // printf("x before=%d\n", cp.x);
+                            cp.y += move_interval; 
+                            // printf("x after=%d\n", cp.x);
+                            moveMouse(cp.x, cp.y, display, root_window);
+                            // printf("right axis positive triggered\n");
+                        
+                            usleep(u);
+                            
+                            if(current_event.value == is_released){
+                                // Am I ever even entering this condition?
+                                printf("Breaking from x axis\n"); 
+                                break; 
+                            }
+                        }
+                        // up
+                        else if(current_event.value < 0 && current_event.number == 1)
+                        {
+                            // printf("x before=%d\n", cp.x);
+                            cp.y -= move_interval; 
+                            // printf("x after=%d\n", cp.x);
+                            moveMouse(cp.x, cp.y, display, root_window);
+                            // printf("right axis positive triggered\n");
+                        
+                            usleep(u);
+                            
+                            if(current_event.value == is_released){
+                                // Am I ever even entering this condition?
+                                printf("Breaking from x axis\n"); 
+                                break; 
+                            }
+                        }  
+                    }
+                }
+        }
+    }
+    close(fd); 
     return 0;
 }
