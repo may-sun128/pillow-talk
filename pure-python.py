@@ -2,7 +2,7 @@ import evdev
 
 devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
 for device in devices:
-    if device.name == 'YOUR_JOYSTICK_NAME':
+    if device.name == 'N/A':
         break
 
 # Attach to the joystick device
