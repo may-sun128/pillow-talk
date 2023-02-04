@@ -175,38 +175,38 @@ class Mouse:
 		pyautogui.moveRel(-50, 0)
 
 
-### Button Mapping ###
+### Moved to pt_v2 ###
 
-# create joystick object 
-js = JoyStick()
+# # create joystick object 
+# js = JoyStick()
 
-# create mouse object 
-m = Mouse()
+# # create mouse object 
+# m = Mouse()
 
-# use defined function 
-def hello_world():
-	print('Hello World')
+# # use defined function 
+# def hello_world():
+# 	print('Hello World')
 
-# joystick functions mappped to user defined functions
-js.x_button_pressed = hello_world
-js.y_button_pressed = hello_world
-js.right_trigger_pressed = hello_world
-js.left_trigger_pressed = hello_world
-js.start_button_pressed = hello_world
-js.select_button_pressed = hello_world
+# # joystick functions mappped to user defined functions
+# js.x_button_pressed = hello_world
+# js.y_button_pressed = hello_world
+# js.right_trigger_pressed = hello_world
+# js.left_trigger_pressed = hello_world
+# js.start_button_pressed = hello_world
+# js.select_button_pressed = hello_world
 
-# joystick functions mapped to mouse fucntions 
+# # joystick functions mapped to mouse fucntions 
 
-# button events
-js.a_button_pressed = m.right_click
-js.b_button_pressed = m.left_click
+# # button events
+# js.a_button_pressed = m.right_click
+# js.b_button_pressed = m.left_click
 
-# dpad events
-js.up_dpad_pressed = m.move_up
-js.down_dpad_pressed = m.move_down
-js.right_dpad_pressed = m.move_right
-js.left_dpad_pressed = m.move_left
+# # dpad events
+# js.up_dpad_pressed = m.move_up
+# js.down_dpad_pressed = m.move_down
+# js.right_dpad_pressed = m.move_right
+# js.left_dpad_pressed = m.move_left
 
-# js.process_events()
-# print(js.get_event())
-js.while_event()
+# # js.process_events()
+# # print(js.get_event())
+# js.while_event()
