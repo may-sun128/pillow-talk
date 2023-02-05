@@ -44,8 +44,8 @@ js = joystick.JoyStick()
 m = joystick.Mouse()
 
 # map user defined functions to joystick object 
-js.x_button_pressed = hello_world
-js.y_button_pressed = hello_world
+js.x_button_pressed = lambda: os.system('echo bash was executed')
+js.y_button_pressed = lambda: os.system('echo bash was executed')
 js.right_trigger_pressed = volume_up #
 js.left_trigger_pressed = volume_down # 
 js.start_button_pressed = launch_gui # 
