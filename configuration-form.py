@@ -2,9 +2,12 @@ from nicegui import ui
 import joystick
 import os
 import json 
+import flatten_dict
+
 
 # TODO figure out how to import joystick module from another directory 
 
+### Callback Functions ###
 
 # write button dictionary to ./config.json
 def write_config(config: dict):
@@ -12,10 +15,7 @@ def write_config(config: dict):
     with open('config.json', 'w') as f:
         f.write(json_config)
 
-# non-dpad buttons 
-ui.markdown('## Bind Buttons')
-
-# A Button 
+### Dictionary Objects ###
 
 button_dict = {
         'a button': {
@@ -25,16 +25,31 @@ button_dict = {
         }
     }
 
+# flatten dictionary so it's easier to access 
+flat_dict = flatten_dict.flatten(button_dict, reducer='underscore')
+# print(flat_dict)
+
 # hard code event 
-button_dict.update({'event': 'pressed'})
+flat_dict.update({'a button_event': 'pressed'})
+
+### Form ###  
+
+# A Button 
+
+# non-dpad buttons 
+ui.markdown('## Bind Buttons')
+
 # label
 ui.label('A Button')
+
 # get type (bash, script, hotkey, mouse action)
-a_button_drp_dwn = ui.select(['Bash', 'Script', 'HotKey', 'Mouse Action'], value='Initial', on_change=lambda: button_dict.update({'type': a_button_drp_dwn.value}))
+a_button_drp_dwn = ui.select(['Bash', 'Script', 'HotKey', 'Mouse Action'], value='Initial', on_change=lambda: flat_dict.update({'a button_type': a_button_drp_dwn.value}))
 # get value ('echo hello world', '~/scripts/hello-world.sh', hotkey, &c)
-a_button_txt_bx = ui.input(label='Text', placeholder='Enter bash code...', on_change=lambda: button_dict.update({'value': a_button_txt_bx.value}))
+a_button_txt_bx = ui.input(label='Text', placeholder='Enter bash code...', on_change=lambda: flat_dict.update({'a button_value': a_button_txt_bx.value}))
+
 # write dict to file 
-ui.button('Save', on_click=lambda: write_config(button_dict))
+ui.button('Save', on_click=lambda: write_config(flatten_dict.unflatten(flat_dict, splitter='underscore')))
+
 # start 
 ui.run(dark=True, show=False)
 

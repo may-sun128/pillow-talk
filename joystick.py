@@ -3,6 +3,8 @@ import evdev
 from evdev import InputDevice, categorize, ecodes
 import pyautogui
 import time
+import json
+import os
 
 
 class JoyStick:
@@ -149,64 +151,25 @@ class JoyStick:
 		print(f'Code: {input_event.code}')
 		print(f'Value: {input_event.value}')
 		print('\n')
-	
-class Mouse:
-	def __init__(self):
-		self.speed = 0.001
-
-	def right_click(self):
-		pyautogui.click(button='right')
-	
-	def left_click(self):
-		pyautogui.click(button='left')
-
-	def move_up(self):
-		pyautogui.moveRel(0, -50, 0.01)
-		# for i in range(10):
-		# 	pyautogui.dragRel(1, 0)
-		# 	time.sleep(self.speed)
-	def move_down(self):
-		pyautogui.move(0, 50, 0.1)
-
-	def move_right(self):
-		pyautogui.moveRel(50, 0)
-
-	def move_left(self):
-		pyautogui.moveRel(-50, 0)
 
 
-### Moved to pt_v2 ###
+	def load_config(self):
+		data: str = ''
+		with open('config.json', 'r') as f:
+			data = f.read()
+		button_dict = json.loads(data)
+		for key in button_dict:
+			print(key)	
+			v = button_dict[key]['value']
+			e = button_dict[key]['event']
+			t = button_dict[key]['type'] 
+			print(v, e, t)
+			# if A button 
+			if key == 'a button':
+					if t == 'Bash':
+						self.a_button_pressed = lambda: os.system(v)
 
-# # create joystick object 
-# js = JoyStick()
+js = JoyStick()
+js.load_config()
+js.process_events()
 
-# # create mouse object 
-# m = Mouse()
-
-# # use defined function 
-# def hello_world():
-# 	print('Hello World')
-
-# # joystick functions mappped to user defined functions
-# js.x_button_pressed = hello_world
-# js.y_button_pressed = hello_world
-# js.right_trigger_pressed = hello_world
-# js.left_trigger_pressed = hello_world
-# js.start_button_pressed = hello_world
-# js.select_button_pressed = hello_world
-
-# # joystick functions mapped to mouse fucntions 
-
-# # button events
-# js.a_button_pressed = m.right_click
-# js.b_button_pressed = m.left_click
-
-# # dpad events
-# js.up_dpad_pressed = m.move_up
-# js.down_dpad_pressed = m.move_down
-# js.right_dpad_pressed = m.move_right
-# js.left_dpad_pressed = m.move_left
-
-# # js.process_events()
-# # print(js.get_event())
-# js.while_event()
