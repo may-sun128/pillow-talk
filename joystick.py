@@ -169,7 +169,9 @@ class JoyStick:
 					if t == 'Bash':
 						self.a_button_pressed = lambda: os.system(v)
 
-js = JoyStick()
-js.load_config()
-js.process_events()
+
+# NOTE: these calls are for testing, but NB that they must be commented out for ui to run properly 
+# js = JoyStick()
+# js.load_config()
+# js.process_events()
 
