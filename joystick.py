@@ -5,6 +5,32 @@ import pyautogui
 import time
 import json
 import os
+from mouse import Mouse
+# from example import get_example_joystick 
+
+class Button:
+	def __init__(self, event):
+		self.event = event
+		self.axis_or_button = ''
+		self.pressed_or_released = ''
+		self.button_name = ''
+
+		if self.event:
+			if self.event.type == 1:
+				self.axis_or_button = 'button'
+			elif self.event.type == 3:
+				self.axis_or_button == 'axis'
+			if self.event.value == 1:
+				self.pressed_or_released = 'pressed'
+			elif self.event.value == 0:
+				self.pressed_or_released = 'released'
+			if self.event.code == 306:
+				self.button_name = 'B Button'
+
+	def print_info(self):
+		print(f'Name: {self.button_name}')
+		print(f'Axis or button: {self.axis_or_button}')
+		print(f'Pressed or released: {self.pressed_or_released}')
 
 
 class JoyStick:
@@ -102,7 +128,7 @@ class JoyStick:
 								case 255:
 									self.right_dpad_pressed()
 
-	'''
+	''' Mouse Issue
 		PROBLEM: For the mouse feature to work, 
 		ie moving the mouse continuously while a button is pressed, 
 		we need to break out of a while loop that loops on the 
@@ -127,20 +153,51 @@ class JoyStick:
 		the event value will finally change and the while loop can be exited.  
 	'''
 
+	# get event for axis 
 	def get_event(self):
 		for event in self.joystick.read_loop():
-			return event
-
-	def while_event(self):
-		e = self.get_event()
-		# self.__print_event_info(e)
+			if event.type == 3:
+				return event 
+		
+	''' Notes
+		type 
+			button   : 1
+			axis     : 3
+		value
+			pressed  : 1
+			released : 0 
+			
+			dpad up  : 0
+			dpad down: 255
+			dpad left: 0
+			dpad rght: 255  
+		code
+			buttons
+				305  : A
+				306  : B
+				304  : X
+				307  : Y
+				312  : Select
+				313  : Start 
+				308  : LT
+				309  : RT 
+				1    : UP/DOWN
+				0    : LEFT/RIGHT
+	'''
+	def process_events_continuously(self):
 		while True:
-			print(e.value)
+			# time.sleep(.5)
+			e = self.get_event()
 			m = Mouse()
-			m.move_up()
-			new_event = self.get_event()
-			if new_event.value != 589827:
-				break
+			# Up
+			if e.type == 3 and e.value == 0 and e.code == 1: 
+				while True:
+					self.up_dpad_pressed()
+					# new_event = self.get_event()
+					# if e.value != new_event.value:
+					# 	break 
+			else:
+				print('Event not handled.')
 
 	def __print_events(self):
 		for event in joystick.read_loop():
@@ -151,7 +208,6 @@ class JoyStick:
 		print(f'Code: {input_event.code}')
 		print(f'Value: {input_event.value}')
 		print('\n')
-
 
 	def load_config(self):
 		data: str = ''
@@ -170,8 +226,13 @@ class JoyStick:
 						self.a_button_pressed = lambda: os.system(v)
 
 
+
 # NOTE: these calls are for testing, but NB that they must be commented out for ui to run properly 
-# js = JoyStick()
-# js.load_config()
+
+m = Mouse()
+js = JoyStick()
+js.up_dpad_pressed = lambda: m.move_up()
+js.down_dpad_pressed = lambda: m.move_down()
 # js.process_events()
+js.process_events_continuously()
 

@@ -11,15 +11,16 @@ class Mouse:
 		pyautogui.click(button='left')
 
 	def move_up(self):
-		pyautogui.moveRel(0, -50, 0.01)
-		# for i in range(10):
-		# 	pyautogui.dragRel(1, 0)
-		# 	time.sleep(self.speed)
+		pyautogui.moveRel(0, -50)
+
 	def move_down(self):
-		pyautogui.move(0, 50, 0.1)
+		pyautogui.move(0, 50)
 
 	def move_right(self):
 		pyautogui.moveRel(50, 0)
 
 	def move_left(self):
 		pyautogui.moveRel(-50, 0)
+
+m = Mouse()
+m.move_down()

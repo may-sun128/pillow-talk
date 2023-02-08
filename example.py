@@ -37,26 +37,27 @@ def launch_gui():
 def hello_world():
     print('Hello World')
 
-# create joystick object 
-js = joystick.JoyStick()
+def get_example_joystick():
+    # create joystick object 
+    example = joystick.JoyStick()
 
-# create mouse object 
-m = joystick.Mouse()
+    # create mouse object 
+    m = joystick.Mouse()
 
-# map user defined functions to joystick object 
-js.x_button_pressed = lambda: os.system('echo bash was executed')
-js.y_button_pressed = lambda: os.system('echo bash was executed')
-js.right_trigger_pressed = volume_up #
-js.left_trigger_pressed = volume_down # 
-js.start_button_pressed = launch_gui # 
-js.select_button_pressed = lambda: pyautogui.hotkey('win', 'r') #
-js.a_button_pressed = m.right_click #
-js.b_button_pressed = m.left_click # 
+    # map user defined functions to joystick object 
+    example.x_button_pressed = lambda: os.system('echo bash was executed')
+    example.y_button_pressed = lambda: os.system('echo bash was executed')
+    example.right_trigger_pressed = volume_up #
+    example.left_trigger_pressed = volume_down # 
+    example.start_button_pressed = launch_gui # 
+    example.select_button_pressed = lambda: pyautogui.hotkey('win', 'r') #
+    example.a_button_pressed = m.right_click #
+    example.b_button_pressed = m.left_click # 
 
-# dpad events
-js.up_dpad_pressed = m.move_up #
-js.down_dpad_pressed = m.move_down # 
-js.right_dpad_pressed = m.move_right # 
-js.left_dpad_pressed = m.move_left # 
+    # dpad events
+    example.up_dpad_pressed = m.move_up #
+    example.down_dpad_pressed = m.move_down # 
+    example.right_dpad_pressed = m.move_right # 
+    example.left_dpad_pressed = m.move_left # 
 
-js.process_events()
+    example.process_events()
